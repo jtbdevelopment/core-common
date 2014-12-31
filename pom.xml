@@ -38,8 +38,18 @@
     </dependencyManagement>
 
     <scm>
-        <developerConnection>scm:git:https://github.com/jtbdevelopment/core-common.git</developerConnection>
+        <connection>scm:git:https://github.com/jtbdevelopment/core-common.git</connection>
+        <developerConnection>scm:git:git@github.com:jtbdevelopment/core-common.git</developerConnection>
+        <url>https://github.com/jtbdevelopment/core-common.git</url>
+        <tag>HEAD</tag>
     </scm>
+    <distributionManagement>
+        <repository>
+            <id>bintray-jtbdevelopment-maven-core-common</id>
+            <name>jtbdevelopment-maven-core-common</name>
+            <url>https://api.bintray.com/maven/jtbdevelopment/maven/core-common</url>
+        </repository>
+    </distributionManagement>
 
     <build>
         <pluginManagement>
@@ -117,6 +127,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.5.1</version>
+                <configuration>
+                    <useReleaseProfile>false</useReleaseProfile>
+                    <releaseProfiles>release</releaseProfiles>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                </configuration>
             </plugin>
         </plugins>
     </build>
