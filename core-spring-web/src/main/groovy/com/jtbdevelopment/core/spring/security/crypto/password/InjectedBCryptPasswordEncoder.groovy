@@ -18,7 +18,7 @@ import java.security.SecureRandom
 class InjectedBCryptPasswordEncoder implements PasswordEncoder {
     private BCryptPasswordEncoder passwordEncoder;
 
-    @Value('password.strength:12')
+    @Value('${password.strength:12}')
     int strength
 
     @PostConstruct
