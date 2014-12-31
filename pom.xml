@@ -13,15 +13,11 @@
     </modules>
 
     <properties>
-        <jersey.version>2.13</jersey.version>
-        <spring.version>4.1.1.RELEASE</spring.version>
-        <spring.data.common.version>1.9.1.RELEASE</spring.data.common.version>
         <spring.data.mongodb.version>1.6.1.RELEASE</spring.data.mongodb.version>
+        <spring.data.common.version>1.9.1.RELEASE</spring.data.common.version>
         <spring.security.version>3.2.5.RELEASE</spring.security.version>
         <spring.social.version>1.1.0.RELEASE</spring.social.version>
-        <javax.servletapi.version>3.1.0</javax.servletapi.version>
-        <atmosphere.version>2.2.3</atmosphere.version>
-        <jackson.version>2.3.2</jackson.version>
+        <spring.version>4.1.1.RELEASE</spring.version>
     </properties>
 
     <dependencyManagement>
