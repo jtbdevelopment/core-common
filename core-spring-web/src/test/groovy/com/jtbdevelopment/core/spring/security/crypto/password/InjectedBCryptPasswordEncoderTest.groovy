@@ -7,6 +7,9 @@ class InjectedBCryptPasswordEncoderTest extends GroovyTestCase {
     InjectedBCryptPasswordEncoder encoder = new InjectedBCryptPasswordEncoder()
 
     void testEncryption() {
+        encoder.strength  = 15
+        encoder.setUp()
+
         def PASSWORD = "PASSWORD"
         def ENCODED = encoder.encode(PASSWORD)
         assert encoder.matches(PASSWORD, ENCODED)

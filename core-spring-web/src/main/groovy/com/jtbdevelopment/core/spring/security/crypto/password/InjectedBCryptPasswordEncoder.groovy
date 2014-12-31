@@ -1,10 +1,12 @@
 package com.jtbdevelopment.core.spring.security.crypto.password
 
 import groovy.transform.CompileStatic
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
 
+import javax.annotation.PostConstruct
 import java.security.SecureRandom
 
 /**
@@ -14,10 +16,14 @@ import java.security.SecureRandom
 @Component
 @CompileStatic
 class InjectedBCryptPasswordEncoder implements PasswordEncoder {
-    final BCryptPasswordEncoder passwordEncoder;
+    private BCryptPasswordEncoder passwordEncoder;
 
-    InjectedBCryptPasswordEncoder() {
-        passwordEncoder = new BCryptPasswordEncoder(12, new SecureRandom())
+    @Value('password.strength:12')
+    int strength
+
+    @PostConstruct
+    setUp() {
+        passwordEncoder = new BCryptPasswordEncoder(strength, new SecureRandom())
     }
 
     @Override
