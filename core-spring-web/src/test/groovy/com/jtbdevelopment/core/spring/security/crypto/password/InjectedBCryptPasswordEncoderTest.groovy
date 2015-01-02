@@ -7,7 +7,12 @@ class InjectedBCryptPasswordEncoderTest extends GroovyTestCase {
     InjectedBCryptPasswordEncoder encoder = new InjectedBCryptPasswordEncoder()
 
     void testEncryption() {
-        encoder.strength  = 15
+        int nextInt = 0
+        while (nextInt < 4) {
+            //  8 is fast enough for tests but not for real
+            nextInt = new Random().nextInt(10)
+        }
+        encoder.strength = nextInt
         encoder.setUp()
 
         def PASSWORD = "PASSWORD"
