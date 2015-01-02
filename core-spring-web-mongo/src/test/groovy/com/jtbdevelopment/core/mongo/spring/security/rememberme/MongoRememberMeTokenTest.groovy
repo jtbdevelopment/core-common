@@ -1,7 +1,12 @@
 package com.jtbdevelopment.core.mongo.spring.security.rememberme
 
 import org.bson.types.ObjectId
+import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.index.CompoundIndexes
+import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken
+
+import java.lang.reflect.Field
 
 /**
  * Date: 1/2/15
@@ -32,5 +37,24 @@ class MongoRememberMeTokenTest extends GroovyTestCase {
         assert t.tokenValue == tv
         assert t.date == d
         assert t.id == id
+    }
+
+    void testIdAnnotation() {
+        Field m = MongoRememberMeToken.class.getDeclaredField('id')
+        assert m
+        Id i = m.getAnnotation(Id.class)
+        assert i
+    }
+
+    void testClassAnnotations() {
+        Document  d= MongoRememberMeToken.class.getAnnotation(Document.class)
+        assert d
+        assert d.collection() == "rememberMeToken"
+        CompoundIndexes ci = MongoRememberMeToken.class.getAnnotation(CompoundIndexes.class)
+        assert ci
+        assert ci.value().length == 1
+        assert ci.value()[0].unique()
+        assert ci.value()[0].def() == "{'series':1}"
+        assert ci.value()[0].name() == 'series'
     }
 }
