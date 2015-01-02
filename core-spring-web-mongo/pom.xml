@@ -21,5 +21,13 @@
             <artifactId>spring-data-mongodb</artifactId>
             <version>${spring.data.mongodb.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.jtbdevelopment.core-common</groupId>
+            <artifactId>core-spring-web</artifactId>
+            <version>0.6-SNAPSHOT</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

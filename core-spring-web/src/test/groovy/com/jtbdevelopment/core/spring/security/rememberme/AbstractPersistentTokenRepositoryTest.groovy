@@ -35,7 +35,7 @@ class AbstractPersistentTokenRepositoryTest extends GroovyTestCase {
         }
     }
 
-    private AbstractPersistentTokenRepository repository;
+    protected AbstractPersistentTokenRepository repository;
 
     @Override
     protected void setUp() throws Exception {
