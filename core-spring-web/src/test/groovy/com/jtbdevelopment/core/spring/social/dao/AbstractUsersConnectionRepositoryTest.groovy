@@ -9,6 +9,8 @@ import java.time.ZonedDateTime
 /**
  * Date: 1/2/15
  * Time: 6:37 PM
+ *
+ * loosely based on spring's own JdbcUsersConnectionRepositoryTest
  */
 class AbstractUsersConnectionRepositoryTest extends GroovyTestCase {
     public static final String FACEBOOK = 'facebook'
@@ -98,20 +100,20 @@ class AbstractUsersConnectionRepositoryTest extends GroovyTestCase {
     }
 
     public void testFindValidUserIdWithValidConnectionFactory() {
-        def puid = '1234'
+        def providedUserId = '1234'
         Connection connection = [
                 getKey: {
-                    return new ConnectionKey(FACEBOOK, puid)
+                    return new ConnectionKey(FACEBOOK, providedUserId)
                 }
         ] as Connection
         repository.socialConnectionRepository = [
                 findByProviderIdAndProviderUserId: {
                     String provider, String user ->
                         assert provider == FACEBOOK
-                        assert user == puid
+                        assert user == providedUserId
                         return [
-                                new StringSocialConnection(id: 'X', userId: '1', providerId: FACEBOOK, providerUserId: puid),
-                                new StringSocialConnection(id: 'Y', userId: '2', providerId: FACEBOOK, providerUserId: puid)
+                                new StringSocialConnection(id: 'X', userId: '1', providerId: FACEBOOK, providerUserId: providedUserId),
+                                new StringSocialConnection(id: 'Y', userId: '2', providerId: FACEBOOK, providerUserId: providedUserId)
                         ]
                 }
         ] as AbstractSocialConnectionRepository
@@ -119,17 +121,17 @@ class AbstractUsersConnectionRepositoryTest extends GroovyTestCase {
     }
 
     public void testFindInValidUserIdWithNoSignUp() {
-        def puid = '1234'
+        def providedUserId = '1234'
         Connection connection = [
                 getKey: {
-                    return new ConnectionKey(FACEBOOK, puid)
+                    return new ConnectionKey(FACEBOOK, providedUserId)
                 }
         ] as Connection
         repository.socialConnectionRepository = [
                 findByProviderIdAndProviderUserId: {
                     String provider, String user ->
                         assert provider == FACEBOOK
-                        assert user == puid
+                        assert user == providedUserId
                         return []
                 }
         ] as AbstractSocialConnectionRepository
@@ -137,13 +139,13 @@ class AbstractUsersConnectionRepositoryTest extends GroovyTestCase {
     }
 
     public void testFindInValidUserIdWithSuccessfulSignUp() {
-        def puid = '1234'
-        def uid = '1'
-        def connectionData = new ConnectionData(FACEBOOK, puid, 'display', 'profile', 'image', 'at', 's', 'rt', 100L)
+        def providedUserId = '1234'
+        def localUserId = '1'
+        def connectionData = new ConnectionData(FACEBOOK, providedUserId, 'display', 'profile', 'image', 'at', 's', 'rt', 100L)
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of("GMT"))
         Connection connection = [
                 getKey    : {
-                    return new ConnectionKey(FACEBOOK, puid)
+                    return new ConnectionKey(FACEBOOK, providedUserId)
                 },
                 createData: {
                     return connectionData
@@ -154,14 +156,14 @@ class AbstractUsersConnectionRepositoryTest extends GroovyTestCase {
                 findByProviderIdAndProviderUserId: {
                     String provider, String user ->
                         assert provider == FACEBOOK
-                        assert user == puid
+                        assert user == providedUserId
                         return []
                 },
                 save                             : {
                     AbstractSocialConnection sc ->
                         assertNull sc.id
                         assertNull sc.version
-                        assert sc.userId == uid
+                        assert sc.userId == localUserId
                         assert sc.providerUserId == connectionData.providerUserId
                         assert sc.created.compareTo(now) > 0
                         assert sc.displayName == connectionData.displayName
@@ -181,17 +183,17 @@ class AbstractUsersConnectionRepositoryTest extends GroovyTestCase {
                 execute: {
                     Connection c ->
                         assert c.is(connection)
-                        return uid
+                        return localUserId
                 }
         ] as ConnectionSignUp
-        assert [uid] as Set == repository.findUserIdsWithConnection(connection) as Set
+        assert [localUserId] as Set == repository.findUserIdsWithConnection(connection) as Set
     }
 
     public void testFindInValidUserIdWithFailedSignUp() {
-        def puid = '1234'
+        def providerUserId = '1234'
         Connection connection = [
-                getKey    : {
-                    return new ConnectionKey(FACEBOOK, puid)
+                getKey: {
+                    return new ConnectionKey(FACEBOOK, providerUserId)
                 }
         ] as Connection
         repository.textEncryptor = new ReverseEncryptor()
@@ -199,7 +201,7 @@ class AbstractUsersConnectionRepositoryTest extends GroovyTestCase {
                 findByProviderIdAndProviderUserId: {
                     String provider, String user ->
                         assert provider == FACEBOOK
-                        assert user == puid
+                        assert user == providerUserId
                         return []
                 }
         ] as AbstractSocialConnectionRepository
@@ -216,19 +218,18 @@ class AbstractUsersConnectionRepositoryTest extends GroovyTestCase {
     }
 
     public void testFindConnectionsForIds() {
-        def ids = ['1234','5678', '9010'] as Set
+        def providerUserIds = ['1234', '5678', '9010'] as Set
         repository.socialConnectionRepository = [
                 findByProviderIdAndProviderUserIdIn: {
                     String provider, Collection<String> userIds ->
                         assert provider == FACEBOOK
-                        assert userIds == ids
+                        assert userIds == providerUserIds
                         return [
                                 new StringSocialConnection(id: 'X', userId: '1', providerId: FACEBOOK, providerUserId: '1235'),
                                 new StringSocialConnection(id: 'Y', userId: '2', providerId: FACEBOOK, providerUserId: '9010')
                         ]
                 }
         ] as AbstractSocialConnectionRepository
-        assert ['1', '2'] as Set == repository.findUserIdsConnectedTo(FACEBOOK, ids)
-
+        assert ['1', '2'] as Set == repository.findUserIdsConnectedTo(FACEBOOK, providerUserIds)
     }
 }

@@ -4,6 +4,7 @@ import com.jtbdevelopment.core.spring.social.dao.AbstractUsersConnectionReposito
 import groovy.transform.CompileStatic
 import org.springframework.social.connect.ConnectionRepository
 import org.springframework.stereotype.Component
+import org.springframework.util.StringUtils
 
 /**
  * Date: 12/16/14
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Component
 class MongoUsersConnectionRepository extends AbstractUsersConnectionRepository {
     @Override
     ConnectionRepository createConnectionRepository(final String userId) {
-        if (userId == null) {
+        if (StringUtils.isEmpty(userId)) {
             throw new IllegalArgumentException("userId cannot be null");
         }
         return new MongoConnectionRepository(userId);

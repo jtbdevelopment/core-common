@@ -26,7 +26,7 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
             new Sort.Order(Sort.Direction.ASC, "providerId"),
             new Sort.Order(Sort.Direction.ASC, "creationTime"))
 
-    protected final String userId;
+    final String userId;
 
     AbstractConnectionRepository(final String userId) {
         this.userId = userId
