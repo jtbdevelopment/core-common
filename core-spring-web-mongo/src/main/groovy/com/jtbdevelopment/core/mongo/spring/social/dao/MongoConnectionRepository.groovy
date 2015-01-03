@@ -20,18 +20,7 @@ class MongoConnectionRepository extends AbstractConnectionRepository {
     }
 
     @Override
-    AbstractSocialConnection createSocialConnectionFromData(final ConnectionData data) {
-        return new MongoSocialConnection(
-                userId: userId,
-                providerId: data.providerId,
-                providerUserId: data.providerUserId,
-                displayName: data.displayName,
-                profileUrl: data.profileUrl,
-                imageUrl: data.imageUrl,
-                accessToken: data.accessToken,
-                secret: data.secret,
-                refreshToken: data.refreshToken,
-                expireTime: data.expireTime
-        )
+    AbstractSocialConnection createSocialConnection() {
+        return new MongoSocialConnection()
     }
 }

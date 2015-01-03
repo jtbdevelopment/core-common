@@ -17,7 +17,7 @@ import org.springframework.util.MultiValueMap
 @CompileStatic
 abstract class AbstractConnectionRepository implements ConnectionRepository {
     private static Logger logger = LoggerFactory.getLogger(AbstractConnectionRepository.class)
-    static AbstractSocialConnectionRepository userConnectionRepository
+    static AbstractSocialConnectionRepository socialConnectionRepository
     static ConnectionFactoryLocator connectionFactoryLocator;
     static Map<String, ConnectionFactory<?>> providerConnectionFactoryMap = [:]
     static TextEncryptor encryptor
@@ -34,7 +34,7 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
 
     @Override
     MultiValueMap<String, Connection<?>> findAllConnections() {
-        Iterable<SocialConnection> userConnections = userConnectionRepository.findByUserId(userId, SORT)
+        Iterable<SocialConnection> userConnections = socialConnectionRepository.findByUserId(userId, SORT)
         MultiValueMap<String, Connection<?>> connections = new LinkedMultiValueMap<String, Connection<?>>();
         providerConnectionFactoryMap.keySet().each {
             String key ->
@@ -52,7 +52,7 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
 
     @Override
     List<Connection<?>> findConnections(final String providerId) {
-        List<SocialConnection> connections = userConnectionRepository.findByUserIdAndProviderId(userId, providerId, SORT)
+        List<SocialConnection> connections = socialConnectionRepository.findByUserIdAndProviderId(userId, providerId, SORT)
         return connections.collect {
             SocialConnection connection ->
                 mapUserConnectionToConnection(connection)
@@ -77,7 +77,7 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
                 List<String> providerUserIds = providerIdProviderUserIdList.get(providerId)
                 [
                         (providerId):
-                                ((List<SocialConnection>) userConnectionRepository.findByUserIdAndProviderIdAndProviderUserIdIn(userId, providerId, providerUserIds, SORT)).collect {
+                                ((List<SocialConnection>) socialConnectionRepository.findByUserIdAndProviderIdAndProviderUserIdIn(userId, providerId, providerUserIds, SORT)).collect {
                                     SocialConnection userConnection -> mapUserConnectionToConnection(userConnection)
                                 }
                 ]
@@ -93,7 +93,7 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
 
     @Override
     Connection<?> getConnection(final ConnectionKey connectionKey) {
-        SocialConnection connection = userConnectionRepository.findByUserIdAndProviderIdAndProviderUserId(userId, connectionKey.providerId, connectionKey.providerUserId)
+        SocialConnection connection = socialConnectionRepository.findByUserIdAndProviderIdAndProviderUserId(userId, connectionKey.providerId, connectionKey.providerUserId)
         if (connection) {
             return mapUserConnectionToConnection(connection);
         }
@@ -123,21 +123,19 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
     }
 
     private Connection<?> findPrimaryConnectionInternal(String providerId) {
-        List<SocialConnection> connections = userConnectionRepository.findByUserIdAndProviderId(userId, providerId, SORT)
+        List<SocialConnection> connections = socialConnectionRepository.findByUserIdAndProviderId(userId, providerId, SORT)
         if (connections.size() > 0) {
             return mapUserConnectionToConnection(connections[0])
         }
         return null;
     }
 
-    abstract SocialConnection createSocialConnectionFromData(final ConnectionData data)
-
     @Override
     void addConnection(final Connection<?> connection) {
         try {
             ConnectionData data = connection.createData();
             SocialConnection userConnection = createSocialConnectionFromData(data)
-            userConnectionRepository.save(userConnection)
+            socialConnectionRepository.save(userConnection)
         } catch (DuplicateKeyException e) {
             logger.warn("addConnection failed with " + e.message)
             throw new DuplicateConnectionException(connection.getKey());
@@ -148,7 +146,7 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
     void updateConnection(final Connection<?> connection) {
         ConnectionData data = connection.createData();
         ConnectionKey connectionKey = connection.key
-        SocialConnection userConnection = userConnectionRepository.findByUserIdAndProviderIdAndProviderUserId(userId, connectionKey.providerId, connectionKey.providerUserId)
+        SocialConnection userConnection = socialConnectionRepository.findByUserIdAndProviderIdAndProviderUserId(userId, connectionKey.providerId, connectionKey.providerUserId)
         if (userConnection) {
             userConnection.displayName = data.displayName
             userConnection.profileUrl = data.profileUrl
@@ -157,18 +155,18 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
             userConnection.secret = data.secret ? encryptor.encrypt(data.secret) : null
             userConnection.refreshToken = data.refreshToken ? encryptor.encrypt(data.refreshToken) : null
             userConnection.expireTime = data.expireTime
-            userConnectionRepository.save(userConnection)
+            socialConnectionRepository.save(userConnection)
         }
     }
 
     @Override
     void removeConnections(final String providerId) {
-        userConnectionRepository.deleteByUserIdAndProviderId(userId, providerId);
+        socialConnectionRepository.deleteByUserIdAndProviderId(userId, providerId);
     }
 
     @Override
     void removeConnection(final ConnectionKey connectionKey) {
-        userConnectionRepository.deleteByUserIdAndProviderIdAndProviderUserId(userId, connectionKey.providerId, connectionKey.providerUserId)
+        socialConnectionRepository.deleteByUserIdAndProviderIdAndProviderUserId(userId, connectionKey.providerId, connectionKey.providerUserId)
     }
 
     private static <A> String getProviderId(Class<A> apiType) {
@@ -187,6 +185,23 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
                 connection.refreshToken ? encryptor.decrypt(connection.refreshToken) : null,
                 connection.expireTime)
         providerConnectionFactoryMap[connectionData.providerId].createConnection(connectionData)
+    }
+
+    abstract SocialConnection createSocialConnection()
+
+    protected SocialConnection createSocialConnectionFromData(final ConnectionData data) {
+        SocialConnection connection = createSocialConnection()
+        connection.userId = userId
+        connection.providerId = data.providerId
+        connection.providerUserId = data.providerUserId
+        connection.displayName = data.displayName
+        connection.profileUrl = data.profileUrl
+        connection.imageUrl = data.imageUrl
+        connection.accessToken = encryptor.encrypt( data.accessToken )
+        connection.secret = encryptor.encrypt( data.secret )
+        connection.refreshToken = encryptor.encrypt( data.refreshToken )
+        connection.expireTime = data.expireTime
+        return connection
     }
 
 }
