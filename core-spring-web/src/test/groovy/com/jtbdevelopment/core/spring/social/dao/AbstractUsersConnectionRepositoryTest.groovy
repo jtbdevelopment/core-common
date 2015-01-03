@@ -214,4 +214,21 @@ class AbstractUsersConnectionRepositoryTest extends GroovyTestCase {
         ] as ConnectionSignUp
         assert [] as Set == repository.findUserIdsWithConnection(connection) as Set
     }
+
+    public void testFindConnectionsForIds() {
+        def ids = ['1234','5678', '9010'] as Set
+        repository.socialConnectionRepository = [
+                findByProviderIdAndProviderUserIdIn: {
+                    String provider, Collection<String> userIds ->
+                        assert provider == FACEBOOK
+                        assert userIds == ids
+                        return [
+                                new StringSocialConnection(id: 'X', userId: '1', providerId: FACEBOOK, providerUserId: '1235'),
+                                new StringSocialConnection(id: 'Y', userId: '2', providerId: FACEBOOK, providerUserId: '9010')
+                        ]
+                }
+        ] as AbstractSocialConnectionRepository
+        assert ['1', '2'] as Set == repository.findUserIdsConnectedTo(FACEBOOK, ids)
+
+    }
 }
