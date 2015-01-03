@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.encrypt.BytesEncryptor
 import org.springframework.security.crypto.encrypt.TextEncryptor
 import org.springframework.stereotype.Component
+import org.springframework.util.StringUtils
 import sun.misc.BASE64Decoder
 import sun.misc.BASE64Encoder
 
@@ -23,11 +24,13 @@ class StrongTextEncryptor implements TextEncryptor {
 
     @Override
     String encrypt(final String text) {
+        if (StringUtils.isEmpty(text)) return text
         return encoder.encode(bytesEncryptor.encrypt(text.bytes))
     }
 
     @Override
     String decrypt(final String encryptedText) {
+        if (StringUtils.isEmpty(encryptedText)) return encryptedText
         def decoded = decoder.decodeBuffer(encryptedText)
         def decrypted = bytesEncryptor.decrypt(decoded)
         return new String(decrypted)

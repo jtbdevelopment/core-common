@@ -31,4 +31,14 @@ class StrongTextEncryptorTest extends GroovyTestCase {
 
         assert textToEncrypt == textEncryptor.decrypt(encrypted)
     }
+
+    public void testEncryptNullOrEmpty() {
+        assert textEncryptor.encrypt(null) == null
+        assert textEncryptor.encrypt("") == ""
+    }
+
+    public void testDecryptNullOrEmpty() {
+        assert textEncryptor.decrypt(null) == null
+        assert textEncryptor.decrypt("") == ""
+    }
 }
