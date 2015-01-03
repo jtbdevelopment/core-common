@@ -6,6 +6,7 @@ package com.jtbdevelopment.core.spring.security.crypto.encrypt
  */
 class TextEncryptionPropertiesTest extends GroovyTestCase {
     TextEncryptionProperties properties = new TextEncryptionProperties()
+
     void testTestDefaults() {
     }
 }

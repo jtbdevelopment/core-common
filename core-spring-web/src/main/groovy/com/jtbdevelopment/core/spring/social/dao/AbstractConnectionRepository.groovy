@@ -65,27 +65,26 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
     @Override
     MultiValueMap<String, Connection<?>> findConnectionsToUsers(
             final MultiValueMap<String, String> providerIdProviderUserIdList) {
-        if (providerIdProviderUserIdList == null || providerIdProviderUserIdList.isEmpty()) {
-            throw new IllegalArgumentException("Unable to execute find: no providerUserIds provided");
+        MultiValueMap<String, Connection<?>> connectionsByProvider = new LinkedMultiValueMap<String, Connection<?>>();
+        if (providerIdProviderUserIdList != null) {
+            providerIdProviderUserIdList.keySet().each {
+                String providerId ->
+                    List<String> providerUserIds = providerIdProviderUserIdList.get(providerId)
+                    List<Connection<?>> resultArray = new ArrayList<Connection<?>>(providerUserIds.size())
+                    providerUserIds.each { resultArray.add(null) }
+                    connectionsByProvider.put(providerId, resultArray)
+                    ((List<SocialConnection>) socialConnectionRepository.findByUserIdAndProviderIdAndProviderUserIdIn(userId, providerId, providerUserIds, SORT)).each {
+                        SocialConnection socialConnection ->
+                            int index = providerUserIds.indexOf(socialConnection.providerUserId)
+                            if (index >= 0) {
+                                Connection<?> connection = mapSocialConnectionToConnection(socialConnection)
+                                resultArray.set(index, connection)
+                            }
+                    }
+            }
         }
 
-        Map<String, List<Connection<?>>> socialConnections = (Map<String, List<Connection<?>>>) providerIdProviderUserIdList.keySet().collectEntries {
-            String providerId ->
-                List<String> providerUserIds = providerIdProviderUserIdList.get(providerId)
-                [
-                        (providerId):
-                                ((List<SocialConnection>) socialConnectionRepository.findByUserIdAndProviderIdAndProviderUserIdIn(userId, providerId, providerUserIds, SORT)).collect {
-                                    SocialConnection socialConnection -> mapSocialConnectionToConnection(socialConnection)
-                                }
-                ]
-        }
-
-        MultiValueMap<String, Connection<?>> connectionsForUsers = new LinkedMultiValueMap<String, Connection<?>>();
-        socialConnections.each {
-            String userId, List<Connection<?>> connections ->
-                connectionsForUsers.put(userId, connections)
-        }
-        return connectionsForUsers
+        return connectionsByProvider
     }
 
     @Override

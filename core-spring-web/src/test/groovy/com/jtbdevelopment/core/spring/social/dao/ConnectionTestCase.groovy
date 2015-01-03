@@ -1,11 +1,7 @@
 package com.jtbdevelopment.core.spring.social.dao
 
 import org.springframework.security.crypto.encrypt.TextEncryptor
-import org.springframework.social.connect.Connection
-import org.springframework.social.connect.ConnectionData
-import org.springframework.social.connect.ConnectionFactory
-import org.springframework.social.connect.ConnectionFactoryLocator
-import org.springframework.social.connect.ConnectionRepository
+import org.springframework.social.connect.*
 import org.springframework.social.connect.support.AbstractConnection
 
 /**
@@ -29,9 +25,26 @@ abstract class ConnectionTestCase extends GroovyTestCase {
         }
     }
 
-    protected static class FakeConnection extends AbstractConnection<Object> {
+    protected static interface FakeFacebookApi {
+
+    }
+
+    protected static interface FakeTwitterApi {
+
+    }
+
+    protected static class FakeConnection<A> extends AbstractConnection<A> {
+        final Long expireTime
+        final String accessToken
+        final String refreshToken
+        final String secret
+
         FakeConnection(final ConnectionData data) {
             super(data, null)
+            this.expireTime = data.expireTime
+            this.accessToken = data.accessToken
+            this.refreshToken = data.refreshToken
+            this.secret = data.secret
         }
 
         @Override
@@ -45,15 +58,44 @@ abstract class ConnectionTestCase extends GroovyTestCase {
         }
     }
 
-    protected static class FakeConnectionFactory extends ConnectionFactory<Object> {
+    protected static class FakeFacebookConnection extends FakeConnection<FakeFacebookApi> {
+        FakeFacebookConnection(final ConnectionData data) {
+            super(data)
+        }
+    }
 
-        FakeConnectionFactory() {
-            super(null, null, null)
+    protected static class FakeTwitterConnection extends FakeConnection<FakeTwitterApi> {
+        FakeTwitterConnection(final ConnectionData data) {
+            super(data)
+        }
+    }
+
+    protected abstract static class FakeConnectionFactory<A> extends ConnectionFactory<A> {
+
+        FakeConnectionFactory(final String providerId) {
+            super(providerId, null, null)
+        }
+    }
+
+    protected static class FaceFacebookConnectionFactory extends FakeConnectionFactory<FakeFacebookApi> {
+        FaceFacebookConnectionFactory() {
+            super(FACEBOOK)
         }
 
         @Override
         Connection<Object> createConnection(final ConnectionData data) {
-            return new FakeConnection(data)
+            return new FakeFacebookConnection(data)
+        }
+    }
+
+    protected static class FaceTwitterConnectionFactory extends FakeConnectionFactory<FakeTwitterApi> {
+        FaceTwitterConnectionFactory() {
+            super(TWITTER)
+        }
+
+        @Override
+        Connection<Object> createConnection(final ConnectionData data) {
+            return new FakeTwitterConnection(data)
         }
     }
 
@@ -87,16 +129,25 @@ abstract class ConnectionTestCase extends GroovyTestCase {
     protected void setUp() throws Exception {
         super.setUp()
         providers = [
-                (FACEBOOK): new FakeConnectionFactory(),
-                (TWITTER) : new FakeConnectionFactory()
+                (FACEBOOK): new FaceFacebookConnectionFactory(),
+                (TWITTER) : new FaceTwitterConnectionFactory()
         ]
         connectionFactoryLocator = [
                 registeredProviderIds: {
                     return providers.keySet()
                 },
                 getConnectionFactory : {
-                    String s ->
-                        return providers[s]
+                    Object s ->
+                        if (s instanceof String) {
+                            return providers[s]
+                        }
+                        if (s.is(FakeTwitterApi.class)) {
+                            return providers[TWITTER]
+                        }
+                        if (s.is(FakeFacebookApi.class)) {
+                            return providers[FACEBOOK]
+                        }
+                        null
                 }
         ] as ConnectionFactoryLocator
     }
