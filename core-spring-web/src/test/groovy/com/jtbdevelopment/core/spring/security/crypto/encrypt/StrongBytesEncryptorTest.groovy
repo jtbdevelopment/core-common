@@ -20,11 +20,8 @@ class StrongBytesEncryptorTest extends GroovyTestCase {
     public void testAssertsOnTooLongPassword() {
         TextEncryptionProperties properties = new TextEncryptionProperties(password: "Bar12345Bar12345X", salt: "ASALT")
         encryptor.textEncryptionProperties = properties
-        try {
+        shouldFail(IllegalStateException.class) {
             encryptor.setUp()
-            fail("should exception")
-        } catch (IllegalStateException e) {
-
         }
     }
 }

@@ -13,8 +13,6 @@ import org.springframework.social.connect.ConnectionData
  */
 @CompileStatic
 class MongoConnectionRepository extends AbstractConnectionRepository {
-    private static Logger logger = LoggerFactory.getLogger(MongoConnectionRepository.class)
-
     MongoConnectionRepository(final String userId) {
         super(userId)
     }

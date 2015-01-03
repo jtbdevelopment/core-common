@@ -162,7 +162,6 @@ class AbstractUsersConnectionRepositoryTest extends GroovyTestCase {
                 save                             : {
                     AbstractSocialConnection sc ->
                         assertNull sc.id
-                        assertNull sc.version
                         assert sc.userId == localUserId
                         assert sc.providerUserId == connectionData.providerUserId
                         assert sc.created.compareTo(now) > 0

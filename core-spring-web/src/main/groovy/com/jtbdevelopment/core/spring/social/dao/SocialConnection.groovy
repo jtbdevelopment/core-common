@@ -12,11 +12,6 @@ interface SocialConnection<ID extends Serializable> {
 
     void setId(final ID id)
 
-    //  Mark for optimistic locking
-    Integer getVersion()
-
-    void setVersion(final Integer version)
-
     String getAccessToken()
 
     void setAccessToken(final String accessToken)

@@ -14,8 +14,6 @@ import java.time.ZonedDateTime
 abstract class AbstractSocialConnection<ID extends Serializable> implements SocialConnection<ID> {
     private static final ZoneId GMT = ZoneId.of("GMT")
 
-    @Version
-    Integer version
     ZonedDateTime created = ZonedDateTime.now(GMT)
 
     String userId
