@@ -4,15 +4,18 @@ import org.springframework.security.crypto.encrypt.TextEncryptor
 import org.springframework.social.connect.Connection
 import org.springframework.social.connect.ConnectionData
 import org.springframework.social.connect.ConnectionFactory
+import org.springframework.social.connect.ConnectionFactoryLocator
 import org.springframework.social.connect.ConnectionRepository
+import org.springframework.social.connect.support.AbstractConnection
 
 /**
  * Date: 1/3/2015
  * Time: 12:10 PM
  */
-class ConnectionTestCase extends GroovyTestCase {
+abstract class ConnectionTestCase extends GroovyTestCase {
     protected static final String FACEBOOK = 'facebook'
     protected static final String TWITTER = 'twitter'
+    protected static final String NEWCO = 'newco'
 
     protected static class ReverseEncryptor implements TextEncryptor {
         @Override
@@ -26,15 +29,31 @@ class ConnectionTestCase extends GroovyTestCase {
         }
     }
 
-    protected static class FakeConnectionFactory extends ConnectionFactory<String> {
+    protected static class FakeConnection extends AbstractConnection<Object> {
+        FakeConnection(final ConnectionData data) {
+            super(data, null)
+        }
+
+        @Override
+        ConnectionData createData() {
+            return null
+        }
+
+        @Override
+        Object getApi() {
+            return null
+        }
+    }
+
+    protected static class FakeConnectionFactory extends ConnectionFactory<Object> {
 
         FakeConnectionFactory() {
             super(null, null, null)
         }
 
         @Override
-        Connection<String> createConnection(final ConnectionData data) {
-            return null
+        Connection<Object> createConnection(final ConnectionData data) {
+            return new FakeConnection(data)
         }
     }
 
@@ -58,5 +77,27 @@ class ConnectionTestCase extends GroovyTestCase {
 
     protected static class StringSocialConnection extends AbstractSocialConnection<String> {
         String id
+    }
+
+    protected Map<String, FakeConnectionFactory> providers;
+    protected ConnectionFactoryLocator connectionFactoryLocator;
+    protected TextEncryptor textEncryptor = new ReverseEncryptor()
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp()
+        providers = [
+                (FACEBOOK): new FakeConnectionFactory(),
+                (TWITTER) : new FakeConnectionFactory()
+        ]
+        connectionFactoryLocator = [
+                registeredProviderIds: {
+                    return providers.keySet()
+                },
+                getConnectionFactory : {
+                    String s ->
+                        return providers[s]
+                }
+        ] as ConnectionFactoryLocator
     }
 }

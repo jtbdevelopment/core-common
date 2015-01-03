@@ -22,7 +22,7 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
     static Map<String, ConnectionFactory<?>> providerConnectionFactoryMap = [:]
     static TextEncryptor encryptor
 
-    private static final Sort SORT = new Sort(
+    protected static final Sort SORT = new Sort(
             new Sort.Order(Sort.Direction.ASC, "providerId"),
             new Sort.Order(Sort.Direction.ASC, "creationTime"))
 
@@ -34,18 +34,15 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
 
     @Override
     MultiValueMap<String, Connection<?>> findAllConnections() {
-        Iterable<SocialConnection> userConnections = socialConnectionRepository.findByUserId(userId, SORT)
+        Iterable<SocialConnection> socialConnections = socialConnectionRepository.findByUserId(userId, SORT)
         MultiValueMap<String, Connection<?>> connections = new LinkedMultiValueMap<String, Connection<?>>();
         providerConnectionFactoryMap.keySet().each {
             String key ->
                 connections.put(key, (List<Connection<?>>) []);
         }
-        userConnections.each {
-            SocialConnection userConnection ->
-                if (connections.get(userConnection.providerId).size() == 0) {
-                    connections.put(userConnection.providerId, new LinkedList<Connection<?>>());
-                }
-                connections.add(userConnection.providerId, mapUserConnectionToConnection(userConnection));
+        socialConnections.each {
+            SocialConnection socialConnection ->
+                connections.add(socialConnection.providerId, mapSocialConnectionToConnection(socialConnection));
         }
         return connections;
     }
@@ -55,7 +52,7 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
         List<SocialConnection> connections = socialConnectionRepository.findByUserIdAndProviderId(userId, providerId, SORT)
         return connections.collect {
             SocialConnection connection ->
-                mapUserConnectionToConnection(connection)
+                mapSocialConnectionToConnection(connection)
         }
     }
 
@@ -72,19 +69,19 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
             throw new IllegalArgumentException("Unable to execute find: no providerUserIds provided");
         }
 
-        Map<String, List<Connection<?>>> userConnections = (Map<String, List<Connection<?>>>) providerIdProviderUserIdList.keySet().collectEntries {
+        Map<String, List<Connection<?>>> socialConnections = (Map<String, List<Connection<?>>>) providerIdProviderUserIdList.keySet().collectEntries {
             String providerId ->
                 List<String> providerUserIds = providerIdProviderUserIdList.get(providerId)
                 [
                         (providerId):
                                 ((List<SocialConnection>) socialConnectionRepository.findByUserIdAndProviderIdAndProviderUserIdIn(userId, providerId, providerUserIds, SORT)).collect {
-                                    SocialConnection userConnection -> mapUserConnectionToConnection(userConnection)
+                                    SocialConnection socialConnection -> mapSocialConnectionToConnection(socialConnection)
                                 }
                 ]
         }
 
         MultiValueMap<String, Connection<?>> connectionsForUsers = new LinkedMultiValueMap<String, Connection<?>>();
-        userConnections.each {
+        socialConnections.each {
             String userId, List<Connection<?>> connections ->
                 connectionsForUsers.put(userId, connections)
         }
@@ -95,7 +92,7 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
     Connection<?> getConnection(final ConnectionKey connectionKey) {
         SocialConnection connection = socialConnectionRepository.findByUserIdAndProviderIdAndProviderUserId(userId, connectionKey.providerId, connectionKey.providerUserId)
         if (connection) {
-            return mapUserConnectionToConnection(connection);
+            return mapSocialConnectionToConnection(connection);
         }
         throw new NoSuchConnectionException(connectionKey);
     }
@@ -125,7 +122,7 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
     private Connection<?> findPrimaryConnectionInternal(String providerId) {
         List<SocialConnection> connections = socialConnectionRepository.findByUserIdAndProviderId(userId, providerId, SORT)
         if (connections.size() > 0) {
-            return mapUserConnectionToConnection(connections[0])
+            return mapSocialConnectionToConnection(connections[0])
         }
         return null;
     }
@@ -134,8 +131,8 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
     void addConnection(final Connection<?> connection) {
         try {
             ConnectionData data = connection.createData();
-            SocialConnection userConnection = createSocialConnectionFromData(data)
-            socialConnectionRepository.save(userConnection)
+            SocialConnection socialConnection = createSocialConnectionFromData(data)
+            socialConnectionRepository.save(socialConnection)
         } catch (DuplicateKeyException e) {
             logger.warn("addConnection failed with " + e.message)
             throw new DuplicateConnectionException(connection.getKey());
@@ -146,16 +143,10 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
     void updateConnection(final Connection<?> connection) {
         ConnectionData data = connection.createData();
         ConnectionKey connectionKey = connection.key
-        SocialConnection userConnection = socialConnectionRepository.findByUserIdAndProviderIdAndProviderUserId(userId, connectionKey.providerId, connectionKey.providerUserId)
-        if (userConnection) {
-            userConnection.displayName = data.displayName
-            userConnection.profileUrl = data.profileUrl
-            userConnection.imageUrl = data.imageUrl
-            userConnection.accessToken = data.accessToken ? encryptor.encrypt(data.accessToken) : null
-            userConnection.secret = data.secret ? encryptor.encrypt(data.secret) : null
-            userConnection.refreshToken = data.refreshToken ? encryptor.encrypt(data.refreshToken) : null
-            userConnection.expireTime = data.expireTime
-            socialConnectionRepository.save(userConnection)
+        SocialConnection socialConnection = socialConnectionRepository.findByUserIdAndProviderIdAndProviderUserId(userId, connectionKey.providerId, connectionKey.providerUserId)
+        if (socialConnection) {
+            updateSocialConnectionFromConnectionData(data, socialConnection)
+            socialConnectionRepository.save(socialConnection)
         }
     }
 
@@ -173,35 +164,44 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
         return connectionFactoryLocator.getConnectionFactory(apiType).getProviderId();
     }
 
-    protected static Connection<?> mapUserConnectionToConnection(final SocialConnection connection) {
+    protected static Connection<?> mapSocialConnectionToConnection(final SocialConnection socialConnection) {
         ConnectionData connectionData = new ConnectionData(
-                connection.providerId,
-                connection.providerUserId,
-                connection.displayName,
-                connection.profileUrl,
-                connection.imageUrl,
-                connection.accessToken ? encryptor.decrypt(connection.accessToken) : null,
-                connection.secret ? encryptor.decrypt(connection.secret) : null,
-                connection.refreshToken ? encryptor.decrypt(connection.refreshToken) : null,
-                connection.expireTime)
-        providerConnectionFactoryMap[connectionData.providerId].createConnection(connectionData)
+                socialConnection.providerId,
+                socialConnection.providerUserId,
+                socialConnection.displayName,
+                socialConnection.profileUrl,
+                socialConnection.imageUrl,
+                socialConnection.accessToken ? encryptor.decrypt(socialConnection.accessToken) : null,
+                socialConnection.secret ? encryptor.decrypt(socialConnection.secret) : null,
+                socialConnection.refreshToken ? encryptor.decrypt(socialConnection.refreshToken) : null,
+                socialConnection.expireTime)
+        if (providerConnectionFactoryMap.containsKey(connectionData.providerId)) {
+            providerConnectionFactoryMap[connectionData.providerId].createConnection(connectionData)
+        } else {
+            throw new IllegalArgumentException('No provider factory for providerId ' + connectionData.providerId)
+        }
     }
 
     abstract SocialConnection createSocialConnection()
 
-    protected SocialConnection createSocialConnectionFromData(final ConnectionData data) {
-        SocialConnection connection = createSocialConnection()
-        connection.userId = userId
-        connection.providerId = data.providerId
-        connection.providerUserId = data.providerUserId
-        connection.displayName = data.displayName
-        connection.profileUrl = data.profileUrl
-        connection.imageUrl = data.imageUrl
-        connection.accessToken = encryptor.encrypt( data.accessToken )
-        connection.secret = encryptor.encrypt( data.secret )
-        connection.refreshToken = encryptor.encrypt( data.refreshToken )
-        connection.expireTime = data.expireTime
-        return connection
+    protected SocialConnection createSocialConnectionFromData(final ConnectionData connectionData) {
+        SocialConnection socialConnection = createSocialConnection()
+        socialConnection.userId = userId
+        socialConnection.providerId = connectionData.providerId
+        socialConnection.providerUserId = connectionData.providerUserId
+        updateSocialConnectionFromConnectionData(connectionData, socialConnection)
+        return socialConnection
     }
 
+    @SuppressWarnings("GrMethodMayBeStatic")
+    private void updateSocialConnectionFromConnectionData(
+            final ConnectionData connectionData, final SocialConnection socialConnection) {
+        socialConnection.displayName = connectionData.displayName
+        socialConnection.profileUrl = connectionData.profileUrl
+        socialConnection.imageUrl = connectionData.imageUrl
+        socialConnection.accessToken = connectionData.accessToken ? encryptor.encrypt(connectionData.accessToken) : null
+        socialConnection.secret = connectionData.secret ? encryptor.encrypt(connectionData.secret) : null
+        socialConnection.refreshToken = connectionData.refreshToken ? encryptor.encrypt(connectionData.refreshToken) : null
+        socialConnection.expireTime = connectionData.expireTime
+    }
 }

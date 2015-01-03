@@ -1,6 +1,9 @@
 package com.jtbdevelopment.core.spring.social.dao
 
-import org.springframework.social.connect.*
+import org.springframework.social.connect.Connection
+import org.springframework.social.connect.ConnectionData
+import org.springframework.social.connect.ConnectionKey
+import org.springframework.social.connect.ConnectionSignUp
 
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -14,24 +17,12 @@ import java.time.ZonedDateTime
 class AbstractUsersConnectionRepositoryTest extends ConnectionTestCase {
 
     private StringUsersConnectionRepository repository = new StringUsersConnectionRepository()
-    private Map<String, FakeConnectionFactory> providers;
 
     @Override
     protected void setUp() throws Exception {
-        providers = [
-                (FACEBOOK): new FakeConnectionFactory(),
-                (TWITTER) : new FakeConnectionFactory()
-        ]
-        repository.connectionFactoryLocator = [
-                registeredProviderIds: {
-                    return providers.keySet()
-                },
-                getConnectionFactory : {
-                    String s ->
-                        return providers[s]
-                }
-        ] as ConnectionFactoryLocator
-        repository.textEncryptor = new ReverseEncryptor()
+        super.setUp()
+        repository.connectionFactoryLocator = connectionFactoryLocator
+        repository.textEncryptor = textEncryptor
     }
 
     void testSetupInitializesConnectionRepositoryStatics() {
