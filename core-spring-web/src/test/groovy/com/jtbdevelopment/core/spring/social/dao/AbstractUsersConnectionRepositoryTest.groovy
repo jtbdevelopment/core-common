@@ -1,6 +1,5 @@
 package com.jtbdevelopment.core.spring.social.dao
 
-import org.springframework.security.crypto.encrypt.TextEncryptor
 import org.springframework.social.connect.*
 
 import java.time.ZoneId
@@ -12,54 +11,7 @@ import java.time.ZonedDateTime
  *
  * loosely based on spring's own JdbcUsersConnectionRepositoryTest
  */
-class AbstractUsersConnectionRepositoryTest extends GroovyTestCase {
-    public static final String FACEBOOK = 'facebook'
-
-    protected static class ReverseEncryptor implements TextEncryptor {
-        @Override
-        String decrypt(final String encryptedText) {
-            return encryptedText.reverse()
-        }
-
-        @Override
-        String encrypt(final String text) {
-            return text.reverse()
-        }
-    }
-
-    protected static class FakeConnectionFactory extends ConnectionFactory<String> {
-
-        FakeConnectionFactory() {
-            super(null, null, null)
-        }
-
-        @Override
-        Connection<String> createConnection(final ConnectionData data) {
-            return null
-        }
-    }
-
-    protected static class StringConnectionRepository extends AbstractConnectionRepository {
-        StringConnectionRepository(final String userId) {
-            super(userId)
-        }
-
-        @Override
-        SocialConnection createSocialConnection() {
-            return new StringSocialConnection()
-        }
-    }
-
-    protected static class StringUsersConnectionRepository extends AbstractUsersConnectionRepository {
-        @Override
-        ConnectionRepository createConnectionRepository(final String userId) {
-            return new StringConnectionRepository(userId)
-        }
-    }
-
-    protected static class StringSocialConnection extends AbstractSocialConnection<String> {
-        String id
-    }
+class AbstractUsersConnectionRepositoryTest extends ConnectionTestCase {
 
     private StringUsersConnectionRepository repository = new StringUsersConnectionRepository()
     private Map<String, FakeConnectionFactory> providers;
@@ -67,8 +19,8 @@ class AbstractUsersConnectionRepositoryTest extends GroovyTestCase {
     @Override
     protected void setUp() throws Exception {
         providers = [
-                'facebook': new FakeConnectionFactory(),
-                'twitter' : new FakeConnectionFactory()
+                (FACEBOOK): new FakeConnectionFactory(),
+                (TWITTER) : new FakeConnectionFactory()
         ]
         repository.connectionFactoryLocator = [
                 registeredProviderIds: {
