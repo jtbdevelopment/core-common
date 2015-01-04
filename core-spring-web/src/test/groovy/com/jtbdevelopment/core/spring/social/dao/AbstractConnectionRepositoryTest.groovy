@@ -1,9 +1,8 @@
 package com.jtbdevelopment.core.spring.social.dao
 
+import org.springframework.dao.DuplicateKeyException
 import org.springframework.data.domain.Sort
-import org.springframework.social.connect.Connection
-import org.springframework.social.connect.ConnectionKey
-import org.springframework.social.connect.NoSuchConnectionException
+import org.springframework.social.connect.*
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
 
@@ -16,15 +15,15 @@ import org.springframework.util.MultiValueMap
 class AbstractConnectionRepositoryTest extends ConnectionTestCase {
     private static String TESTID = 'TESTID'
     private
-    static FACEBOOK1SC = new StringSocialConnection(id: 'L1', providerId: FACEBOOK, providerUserId: 'F1', profileUrl: 'F1P', imageUrl: 'F1I', accessToken: 'F1A', secret: 'F1S', expireTime: 1, displayName: 'F1DN')
+    static FACEBOOK1SC = new StringSocialConnection(userId: TESTID, id: 'L1', providerId: FACEBOOK, providerUserId: 'F1', profileUrl: 'F1P', imageUrl: 'F1I', accessToken: 'F1A', secret: 'F1S', expireTime: 1, displayName: 'F1DN')
     private
-    static FACEBOOK2SC = new StringSocialConnection(id: 'L1', providerId: FACEBOOK, providerUserId: 'F2', profileUrl: 'F2P', imageUrl: 'F2I', accessToken: 'F2A', secret: 'F2S', expireTime: 2, displayName: 'F2DN')
+    static FACEBOOK2SC = new StringSocialConnection(userId: TESTID, id: 'L1', providerId: FACEBOOK, providerUserId: 'F2', profileUrl: 'F2P', imageUrl: 'F2I', accessToken: 'F2A', secret: 'F2S', expireTime: 2, displayName: 'F2DN')
     private
-    static FACEBOOK2SCDUPE = new StringSocialConnection(id: 'L1DUPE', providerId: FACEBOOK, providerUserId: 'F2', profileUrl: 'F2PDUPE', imageUrl: 'F2IDUPE', accessToken: 'F2A', secret: 'F2S', expireTime: 2, displayName: 'F2DNDUPE')
+    static FACEBOOK2SCDUPE = new StringSocialConnection(userId: TESTID, id: 'L1DUPE', providerId: FACEBOOK, providerUserId: 'F2', profileUrl: 'F2PDUPE', imageUrl: 'F2IDUPE', accessToken: 'F2A', secret: 'F2S', expireTime: 2, displayName: 'F2DNDUPE')
     private
-    static TWITTER1SC = new StringSocialConnection(id: 'L1', providerId: TWITTER, providerUserId: 'T1', profileUrl: 'T1P', imageUrl: 'T1I', accessToken: 'T1A', refreshToken: 'T1RT', expireTime: 1, displayName: 'T1DN')
+    static TWITTER1SC = new StringSocialConnection(userId: TESTID, id: 'L1', providerId: TWITTER, providerUserId: 'T1', profileUrl: 'T1P', imageUrl: 'T1I', accessToken: 'T1A', refreshToken: 'T1RT', expireTime: 1, displayName: 'T1DN')
     private
-    static NEWCO1SC = new StringSocialConnection(id: 'L1', providerId: NEWCO, providerUserId: 'N1', profileUrl: 'N1P', imageUrl: 'N1I', expireTime: 2, displayName: 'N1DN')
+    static NEWCO1SC = new StringSocialConnection(userId: TESTID, id: 'L1', providerId: NEWCO, providerUserId: 'N1', profileUrl: 'N1P', imageUrl: 'N1I', expireTime: 2, displayName: 'N1DN')
 
     private StringConnectionRepository repository = new StringConnectionRepository(TESTID)
 
@@ -252,8 +251,212 @@ class AbstractConnectionRepositoryTest extends ConnectionTestCase {
         }
     }
 
+    void testGetPrimaryConnection() {
+        StringConnectionRepository.socialConnectionRepository = [
+                findByUserIdAndProviderId: {
+                    String uid, String p, Sort s ->
+                        assert uid == TESTID
+                        assert p == FACEBOOK
+                        assert s.is(StringConnectionRepository.SORT)
+                        return [FACEBOOK2SC, FACEBOOK1SC]
+                }
+        ] as AbstractSocialConnectionRepository
+        compareConnectionToSocialConnection(repository.getPrimaryConnection(FakeFacebookApi.class), FACEBOOK2SC)
+    }
+
+    void testGetPrimaryConnectionNoResults() {
+        StringConnectionRepository.socialConnectionRepository = [
+                findByUserIdAndProviderId: {
+                    String uid, String p, Sort s ->
+                        assert uid == TESTID
+                        assert p == FACEBOOK
+                        assert s.is(StringConnectionRepository.SORT)
+                        return []
+                }
+        ] as AbstractSocialConnectionRepository
+        shouldFail(NotConnectedException.class) {
+            repository.getPrimaryConnection(FakeFacebookApi.class)
+        }
+    }
+
+    void testFindPrimaryConnection() {
+        StringConnectionRepository.socialConnectionRepository = [
+                findByUserIdAndProviderId: {
+                    String uid, String p, Sort s ->
+                        assert uid == TESTID
+                        assert p == FACEBOOK
+                        assert s.is(StringConnectionRepository.SORT)
+                        return [FACEBOOK2SC, FACEBOOK1SC]
+                }
+        ] as AbstractSocialConnectionRepository
+        compareConnectionToSocialConnection(repository.findPrimaryConnection(FakeFacebookApi.class), FACEBOOK2SC)
+    }
+
+    void testFindPrimaryConnectionNoResults() {
+        StringConnectionRepository.socialConnectionRepository = [
+                findByUserIdAndProviderId: {
+                    String uid, String p, Sort s ->
+                        assert uid == TESTID
+                        assert p == FACEBOOK
+                        assert s.is(StringConnectionRepository.SORT)
+                        return []
+                }
+        ] as AbstractSocialConnectionRepository
+        assertNull repository.findPrimaryConnection(FakeFacebookApi.class)
+    }
+
+    void testRemoveConnections() {
+        boolean deleteCalled = false
+        StringConnectionRepository.socialConnectionRepository = [
+                deleteByUserIdAndProviderId: {
+                    String uid, String p ->
+                        assert uid == TESTID
+                        assert p == TWITTER
+                        deleteCalled = true
+                        return 1L
+                }
+        ] as AbstractSocialConnectionRepository
+        repository.removeConnections(TWITTER)
+        assert deleteCalled
+    }
+
+    void testRemoveConnection() {
+        boolean deleteCalled = false
+        StringConnectionRepository.socialConnectionRepository = [
+                deleteByUserIdAndProviderIdAndProviderUserId: {
+                    String uid, String p, String pid ->
+                        assert uid == TESTID
+                        assert p == TWITTER
+                        assert pid == TWITTER1SC.providerUserId
+                        deleteCalled = true
+                        return 1L
+                }
+        ] as AbstractSocialConnectionRepository
+        repository.removeConnection(new ConnectionKey(TWITTER, TWITTER1SC.providerUserId))
+        assert deleteCalled
+    }
+
+    void testAddConnection() {
+        boolean saveCalled = false
+        StringConnectionRepository.socialConnectionRepository = [
+                save: {
+                    SocialConnection sc ->
+                        assertNull sc.id
+                        assert sc.providerId == FACEBOOK
+                        assert sc.providerUserId == FACEBOOK1SC.providerUserId
+                        assert sc.profileUrl == FACEBOOK1SC.profileUrl
+                        assert sc.imageUrl == FACEBOOK1SC.imageUrl
+                        assert sc.displayName == FACEBOOK1SC.displayName
+                        assert sc.expireTime == FACEBOOK1SC.expireTime
+                        assert sc.accessToken == FACEBOOK1SC.accessToken.reverse()
+                        assert sc.refreshToken == null
+                        assert sc.secret == FACEBOOK1SC.secret.reverse()
+                        assert sc.userId == TESTID
+                        saveCalled = true
+                        return sc
+                }
+        ] as AbstractSocialConnectionRepository
+        repository.addConnection(
+                new FakeFacebookConnection(
+                        new ConnectionData(
+                                FACEBOOK,
+                                FACEBOOK1SC.providerUserId,
+                                FACEBOOK1SC.displayName,
+                                FACEBOOK1SC.profileUrl,
+                                FACEBOOK1SC.imageUrl,
+                                FACEBOOK1SC.accessToken,
+                                FACEBOOK1SC.secret,
+                                FACEBOOK1SC.refreshToken,
+                                FACEBOOK1SC.expireTime)))
+        assert saveCalled
+    }
+
+    void testAddConnectionDuplicate() {
+        StringConnectionRepository.socialConnectionRepository = [
+                save: {
+                    SocialConnection sc ->
+                        assertNull sc.id
+                        assert sc.providerId == FACEBOOK
+                        assert sc.providerUserId == FACEBOOK1SC.providerUserId
+                        assert sc.profileUrl == FACEBOOK1SC.profileUrl
+                        assert sc.imageUrl == FACEBOOK1SC.imageUrl
+                        assert sc.displayName == FACEBOOK1SC.displayName
+                        assert sc.expireTime == FACEBOOK1SC.expireTime
+                        assert sc.accessToken == FACEBOOK1SC.accessToken.reverse()
+                        assert sc.refreshToken == null
+                        assert sc.secret == FACEBOOK1SC.secret.reverse()
+                        assert sc.userId == TESTID
+                        throw new DuplicateKeyException('dupe')
+                }
+        ] as AbstractSocialConnectionRepository
+        shouldFail(DuplicateConnectionException.class) {
+            repository.addConnection(
+                    new FakeFacebookConnection(
+                            new ConnectionData(
+                                    FACEBOOK,
+                                    FACEBOOK1SC.providerUserId,
+                                    FACEBOOK1SC.displayName,
+                                    FACEBOOK1SC.profileUrl,
+                                    FACEBOOK1SC.imageUrl,
+                                    FACEBOOK1SC.accessToken,
+                                    FACEBOOK1SC.secret,
+                                    FACEBOOK1SC.refreshToken,
+                                    FACEBOOK1SC.expireTime)))
+        }
+    }
+
+    void testUpdateConnection() {
+        boolean saveCalled = false
+        String newProfile = 'newprofile'
+        String newImage = 'newimage'
+        String newRefreshToken = 'newrefresh'
+        String newSecret = 'newsecret'
+        String newAccessToken = 'na'
+        String newDisplayName = 'newdisplay'
+        Long newExpire = 151L
+        StringConnectionRepository.socialConnectionRepository = [
+                findByUserIdAndProviderIdAndProviderUserId: {
+                    String uid, String p, String pid ->
+                        assert uid == TESTID
+                        assert p == FACEBOOK
+                        assert pid == FACEBOOK2SC.providerUserId
+                        return FACEBOOK2SC
+                },
+                save                                      : {
+                    SocialConnection sc ->
+                        assert sc.id == FACEBOOK2SC.id
+                        assert sc.providerId == FACEBOOK
+                        assert sc.providerUserId == FACEBOOK2SC.providerUserId
+                        assert sc.profileUrl == newProfile
+                        assert sc.imageUrl == newImage
+                        assert sc.displayName == newDisplayName
+                        assert sc.expireTime == newExpire
+                        assert sc.accessToken == newAccessToken.reverse()
+                        assert sc.refreshToken == newRefreshToken.reverse()
+                        assert sc.secret == newSecret.reverse()
+                        assert sc.userId == TESTID
+                        saveCalled = true
+                        return sc
+                }
+        ] as AbstractSocialConnectionRepository
+        repository.updateConnection(
+                new FakeFacebookConnection(
+                        new ConnectionData(
+                                FACEBOOK,
+                                FACEBOOK2SC.providerUserId,
+                                newDisplayName,
+                                newProfile,
+                                newImage,
+                                newAccessToken,
+                                newSecret,
+                                newRefreshToken,
+                                newExpire)))
+        assert saveCalled
+    }
+
     private
-    static void compareConnectionToSocialConnection(Connection<?> connection, StringSocialConnection socialConnection) {
+    static void compareConnectionToSocialConnection(
+            final Connection<?> connection, final StringSocialConnection socialConnection) {
         assert connection instanceof FakeConnection
         assert connection.displayName == socialConnection.displayName
         assert connection.profileUrl == socialConnection.profileUrl
@@ -264,5 +467,6 @@ class AbstractConnectionRepositoryTest extends ConnectionTestCase {
         assert connection.refreshToken == socialConnection.refreshToken?.reverse()
         assert connection.secret == socialConnection.secret?.reverse()
     }
+
 }
 

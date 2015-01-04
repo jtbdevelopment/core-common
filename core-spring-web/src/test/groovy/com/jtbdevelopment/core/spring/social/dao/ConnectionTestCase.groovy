@@ -38,6 +38,8 @@ abstract class ConnectionTestCase extends GroovyTestCase {
         final String accessToken
         final String refreshToken
         final String secret
+        final String providerUserId
+        final String providerId
 
         FakeConnection(final ConnectionData data) {
             super(data, null)
@@ -45,11 +47,13 @@ abstract class ConnectionTestCase extends GroovyTestCase {
             this.accessToken = data.accessToken
             this.refreshToken = data.refreshToken
             this.secret = data.secret
+            this.providerUserId = data.providerUserId
+            this.providerId = data.providerId
         }
 
         @Override
         ConnectionData createData() {
-            return null
+            return new ConnectionData(providerId, providerUserId, displayName, profileUrl, imageUrl, accessToken, secret, refreshToken, expireTime)
         }
 
         @Override
