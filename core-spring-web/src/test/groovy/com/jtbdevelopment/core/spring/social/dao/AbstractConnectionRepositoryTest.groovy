@@ -2,6 +2,8 @@ package com.jtbdevelopment.core.spring.social.dao
 
 import org.springframework.data.domain.Sort
 import org.springframework.social.connect.Connection
+import org.springframework.social.connect.ConnectionKey
+import org.springframework.social.connect.NoSuchConnectionException
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
 
@@ -147,7 +149,7 @@ class AbstractConnectionRepositoryTest extends ConnectionTestCase {
         assert connections.size() == 0
     }
 
-    public void testFindConnectionsToProviderUserIds() {
+    void testFindConnectionsToProviderUserIds() {
         def TPIDS = ["DONTEXIST", TWITTER1SC.providerUserId]
         def FBPIDS = [FACEBOOK1SC.providerUserId, FACEBOOK2SC.providerUserId]
         MultiValueMap<String, String> input = new LinkedMultiValueMap<>();
@@ -183,15 +185,71 @@ class AbstractConnectionRepositoryTest extends ConnectionTestCase {
         compareConnectionToSocialConnection(t[1], TWITTER1SC)
     }
 
-    public void testFindConnectionsToProviderUserIdsWithNullInput() {
+    void testFindConnectionsToProviderUserIdsWithNullInput() {
         MultiValueMap<String, Connection<?>> result = repository.findConnectionsToUsers(null)
         assert result.isEmpty()
     }
 
-    public void testFindConnectionsToProviderUserIdsWithEmptyInput() {
+    void testFindConnectionsToProviderUserIdsWithEmptyInput() {
         MultiValueMap<String, String> input = new LinkedMultiValueMap<>();
         MultiValueMap<String, Connection<?>> result = repository.findConnectionsToUsers(input)
         assert result.isEmpty()
+    }
+
+    void testFindByConnectionKey() {
+        StringConnectionRepository.socialConnectionRepository = [
+                findByUserIdAndProviderIdAndProviderUserId: {
+                    String uid, String p, String pid ->
+                        assert uid == TESTID
+                        assert p == TWITTER
+                        assert pid == TWITTER1SC.providerUserId
+                        return TWITTER1SC
+                }
+        ] as AbstractSocialConnectionRepository
+        compareConnectionToSocialConnection(repository.getConnection(new ConnectionKey(TWITTER, TWITTER1SC.providerUserId)), TWITTER1SC)
+    }
+
+    void testFindByConnectionKeyNotFound() {
+        StringConnectionRepository.socialConnectionRepository = [
+                findByUserIdAndProviderIdAndProviderUserId: {
+                    String uid, String p, String pid ->
+                        assert uid == TESTID
+                        assert p == TWITTER
+                        assert pid == TWITTER1SC.providerUserId
+                        return null
+                }
+        ] as AbstractSocialConnectionRepository
+        shouldFail(NoSuchConnectionException.class) {
+            repository.getConnection(new ConnectionKey(TWITTER, TWITTER1SC.providerUserId))
+        }
+    }
+
+    void testFindByAPIAndPID() {
+        StringConnectionRepository.socialConnectionRepository = [
+                findByUserIdAndProviderIdAndProviderUserId: {
+                    String uid, String p, String pid ->
+                        assert uid == TESTID
+                        assert p == FACEBOOK
+                        assert pid == FACEBOOK2SC.providerUserId
+                        return FACEBOOK2SC
+                }
+        ] as AbstractSocialConnectionRepository
+        compareConnectionToSocialConnection(repository.getConnection(FakeFacebookApi.class, FACEBOOK2SC.providerUserId), FACEBOOK2SC)
+    }
+
+    void testFindByAPIAndPIDNotFound() {
+        StringConnectionRepository.socialConnectionRepository = [
+                findByUserIdAndProviderIdAndProviderUserId: {
+                    String uid, String p, String pid ->
+                        assert uid == TESTID
+                        assert p == FACEBOOK
+                        assert pid == FACEBOOK2SC.providerUserId
+                        return null
+                }
+        ] as AbstractSocialConnectionRepository
+        shouldFail(NoSuchConnectionException.class) {
+            repository.getConnection(FakeFacebookApi.class, FACEBOOK2SC.providerUserId)
+        }
     }
 
     private

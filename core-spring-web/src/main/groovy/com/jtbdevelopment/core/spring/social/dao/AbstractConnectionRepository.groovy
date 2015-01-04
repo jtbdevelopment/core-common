@@ -103,7 +103,7 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
     }
 
     @Override
-    def <A> Connection<A> getPrimaryConnection(final Class<A> apiType) {
+    <A> Connection<A> getPrimaryConnection(final Class<A> apiType) {
         String providerId = getProviderId(apiType);
         Connection<A> connection = (Connection<A>) findPrimaryConnectionInternal(providerId);
         if (connection == null) {
@@ -113,7 +113,7 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
     }
 
     @Override
-    def <A> Connection<A> findPrimaryConnection(final Class<A> apiType) {
+    <A> Connection<A> findPrimaryConnection(final Class<A> apiType) {
         String providerId = getProviderId(apiType);
         return (Connection<A>) findPrimaryConnectionInternal(providerId);
     }
