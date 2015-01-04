@@ -71,6 +71,8 @@ class MongoPersistentTokenRepositoryIntegrationTest extends GroovyTestCase {
 
     @Override
     protected void setUp() throws Exception {
+        if (mongodExecutable) return
+
         MongodStarter starter = MongodStarter.getDefaultInstance();
 
         int port = DB_PORT;
