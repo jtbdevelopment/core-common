@@ -1,112 +1,17 @@
 package com.jtbdevelopment.core.spring.social.dao
 
+import com.jtbdevelopment.core.spring.social.dao.utility.*
 import org.springframework.security.crypto.encrypt.TextEncryptor
-import org.springframework.social.connect.*
-import org.springframework.social.connect.support.AbstractConnection
+import org.springframework.social.connect.ConnectionFactoryLocator
+import org.springframework.social.connect.ConnectionRepository
 
 /**
  * Date: 1/3/2015
  * Time: 12:10 PM
  */
 abstract class ConnectionTestCase extends GroovyTestCase {
-    protected static final String FACEBOOK = 'facebook'
-    protected static final String TWITTER = 'twitter'
+
     protected static final String NEWCO = 'newco'
-
-    protected static class ReverseEncryptor implements TextEncryptor {
-        @Override
-        String decrypt(final String encryptedText) {
-            return encryptedText.reverse()
-        }
-
-        @Override
-        String encrypt(final String text) {
-            return text.reverse()
-        }
-    }
-
-    protected static interface FakeFacebookApi {
-
-    }
-
-    protected static interface FakeTwitterApi {
-
-    }
-
-    protected abstract static class FakeConnection<A> extends AbstractConnection<A> {
-        final Long expireTime
-        final String accessToken
-        final String refreshToken
-        final String secret
-        final String providerUserId
-        final String providerId
-
-        FakeConnection(final ConnectionData data) {
-            super(data, null)
-            this.expireTime = data.expireTime
-            this.accessToken = data.accessToken
-            this.refreshToken = data.refreshToken
-            this.secret = data.secret
-            this.providerUserId = data.providerUserId
-            this.providerId = data.providerId
-        }
-
-        @Override
-        ConnectionData createData() {
-            return new ConnectionData(providerId, providerUserId, displayName, profileUrl, imageUrl, accessToken, secret, refreshToken, expireTime)
-        }
-    }
-
-    protected static class FakeFacebookConnection extends FakeConnection<FakeFacebookApi> {
-        FakeFacebookConnection(final ConnectionData data) {
-            super(data)
-        }
-
-        @Override
-        FakeFacebookApi getApi() {
-            return null
-        }
-    }
-
-    protected static class FakeTwitterConnection extends FakeConnection<FakeTwitterApi> {
-        FakeTwitterConnection(final ConnectionData data) {
-            super(data)
-        }
-
-        @Override
-        FakeTwitterApi getApi() {
-            return null
-        }
-    }
-
-    protected abstract static class FakeConnectionFactory<A> extends ConnectionFactory<A> {
-
-        FakeConnectionFactory(final String providerId) {
-            super(providerId, null, null)
-        }
-    }
-
-    protected static class FaceFacebookConnectionFactory extends FakeConnectionFactory<FakeFacebookApi> {
-        FaceFacebookConnectionFactory() {
-            super(FACEBOOK)
-        }
-
-        @Override
-        Connection<Object> createConnection(final ConnectionData data) {
-            return new FakeFacebookConnection(data)
-        }
-    }
-
-    protected static class FaceTwitterConnectionFactory extends FakeConnectionFactory<FakeTwitterApi> {
-        FaceTwitterConnectionFactory() {
-            super(TWITTER)
-        }
-
-        @Override
-        Connection<Object> createConnection(final ConnectionData data) {
-            return new FakeTwitterConnection(data)
-        }
-    }
 
     protected static class StringConnectionRepository extends AbstractConnectionRepository {
         StringConnectionRepository(final String userId) {
@@ -138,8 +43,8 @@ abstract class ConnectionTestCase extends GroovyTestCase {
     protected void setUp() throws Exception {
         super.setUp()
         providers = [
-                (FACEBOOK): new FaceFacebookConnectionFactory(),
-                (TWITTER) : new FaceTwitterConnectionFactory()
+                (FakeFacebookApi.FACEBOOK): new FakeFacebookConnectionFactory(),
+                (FakeTwitterApi.TWITTER)  : new FakeTwitterConnectionFactory()
         ]
         connectionFactoryLocator = [
                 registeredProviderIds: {
@@ -151,10 +56,10 @@ abstract class ConnectionTestCase extends GroovyTestCase {
                             return providers[s]
                         }
                         if (s.is(FakeTwitterApi.class)) {
-                            return providers[TWITTER]
+                            return providers[FakeTwitterApi.TWITTER]
                         }
                         if (s.is(FakeFacebookApi.class)) {
-                            return providers[FACEBOOK]
+                            return providers[FakeFacebookApi.FACEBOOK]
                         }
                         null
                 }

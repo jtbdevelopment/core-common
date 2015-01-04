@@ -1,5 +1,6 @@
 package com.jtbdevelopment.core.spring.social.dao
 
+import com.jtbdevelopment.core.spring.social.dao.utility.ReverseEncryptor
 import org.springframework.social.connect.Connection
 import org.springframework.social.connect.ConnectionData
 import org.springframework.social.connect.ConnectionKey
@@ -7,6 +8,8 @@ import org.springframework.social.connect.ConnectionSignUp
 
 import java.time.ZoneId
 import java.time.ZonedDateTime
+
+import static com.jtbdevelopment.core.spring.social.dao.utility.FakeFacebookApi.FACEBOOK
 
 /**
  * Date: 1/2/15

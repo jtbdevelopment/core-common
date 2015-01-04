@@ -1,10 +1,17 @@
 package com.jtbdevelopment.core.spring.social.dao
 
+import com.jtbdevelopment.core.spring.social.dao.utility.FakeConnection
+import com.jtbdevelopment.core.spring.social.dao.utility.FakeFacebookApi
+import com.jtbdevelopment.core.spring.social.dao.utility.FakeFacebookConnection
+import com.jtbdevelopment.core.spring.social.dao.utility.FakeTwitterApi
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.data.domain.Sort
 import org.springframework.social.connect.*
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
+
+import static com.jtbdevelopment.core.spring.social.dao.utility.FakeFacebookApi.FACEBOOK
+import static com.jtbdevelopment.core.spring.social.dao.utility.FakeTwitterApi.TWITTER
 
 /**
  * Date: 1/3/2015
