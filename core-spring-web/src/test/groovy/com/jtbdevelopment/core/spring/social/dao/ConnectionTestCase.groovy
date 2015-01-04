@@ -33,7 +33,7 @@ abstract class ConnectionTestCase extends GroovyTestCase {
 
     }
 
-    protected static class FakeConnection<A> extends AbstractConnection<A> {
+    protected abstract static class FakeConnection<A> extends AbstractConnection<A> {
         final Long expireTime
         final String accessToken
         final String refreshToken
@@ -55,22 +55,27 @@ abstract class ConnectionTestCase extends GroovyTestCase {
         ConnectionData createData() {
             return new ConnectionData(providerId, providerUserId, displayName, profileUrl, imageUrl, accessToken, secret, refreshToken, expireTime)
         }
-
-        @Override
-        Object getApi() {
-            return null
-        }
     }
 
     protected static class FakeFacebookConnection extends FakeConnection<FakeFacebookApi> {
         FakeFacebookConnection(final ConnectionData data) {
             super(data)
         }
+
+        @Override
+        FakeFacebookApi getApi() {
+            return null
+        }
     }
 
     protected static class FakeTwitterConnection extends FakeConnection<FakeTwitterApi> {
         FakeTwitterConnection(final ConnectionData data) {
             super(data)
+        }
+
+        @Override
+        FakeTwitterApi getApi() {
+            return null
         }
     }
 
