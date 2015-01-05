@@ -64,7 +64,6 @@ class AbstractPersistentTokenRepositoryTest extends GroovyTestCase {
     }
 
     public void testRetrievingTokenReturnsCorrectData() {
-
         def series = "joesseries"
         AbstractRememberMeToken token = repository.newToken(new PersistentRememberMeToken("joeuser", series, "atoken", new Date()))
         repository.rememberMeTokenRepository = [

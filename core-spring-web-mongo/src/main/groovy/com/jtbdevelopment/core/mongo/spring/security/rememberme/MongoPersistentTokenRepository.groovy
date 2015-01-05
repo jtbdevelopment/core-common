@@ -14,12 +14,12 @@ import org.springframework.stereotype.Component
 @Component
 class MongoPersistentTokenRepository extends AbstractPersistentTokenRepository<ObjectId, MongoRememberMeToken> {
     @Override
-    MongoRememberMeToken newToken(final PersistentRememberMeToken source) {
+    protected MongoRememberMeToken newToken(final PersistentRememberMeToken source) {
         return new MongoRememberMeToken(source)
     }
 
     @Override
-    MongoRememberMeToken newToken(
+    protected MongoRememberMeToken newToken(
             final ObjectId objectId,
             final String username, final String series, final String tokenValue, final Date date) {
         return new MongoRememberMeToken(username, series, tokenValue, date, objectId)

@@ -14,9 +14,9 @@ abstract class AbstractPersistentTokenRepository<ID extends Serializable, T exte
     @Autowired
     AbstractRememberMeTokenRepository<ID, T> rememberMeTokenRepository
 
-    abstract T newToken(final PersistentRememberMeToken source)
+    protected abstract T newToken(final PersistentRememberMeToken source)
 
-    abstract T newToken(
+    protected abstract T newToken(
             final ID id, final String username, final String series, final String tokenValue, final Date date)
 
     @Override
