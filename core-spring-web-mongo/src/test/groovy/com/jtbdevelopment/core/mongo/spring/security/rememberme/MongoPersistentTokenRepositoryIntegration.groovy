@@ -8,6 +8,9 @@ import org.springframework.security.web.authentication.rememberme.PersistentReme
 /**
  * Date: 1/3/2015
  * Time: 9:51 PM
+ *
+ * Loosely based on spring's own JdbcTokenRepositoryImplTests
+ *
  */
 class MongoPersistentTokenRepositoryIntegration extends AbstractMongoIntegration {
 
