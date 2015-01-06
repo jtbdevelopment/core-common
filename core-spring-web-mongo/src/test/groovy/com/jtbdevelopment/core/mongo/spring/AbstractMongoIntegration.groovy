@@ -1,5 +1,6 @@
 package com.jtbdevelopment.core.mongo.spring
 
+import com.jtbdevelopment.core.mongo.spring.converters.MongoConverter
 import com.jtbdevelopment.core.mongo.spring.security.rememberme.MongoPersistentTokenRepository
 import com.jtbdevelopment.core.spring.social.dao.utility.FakeFacebookConnectionFactory
 import com.jtbdevelopment.core.spring.social.dao.utility.FakeTwitterConnectionFactory
@@ -22,6 +23,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration
+import org.springframework.data.mongodb.core.convert.CustomConversions
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories
 import org.springframework.social.connect.support.ConnectionFactoryRegistry
 
@@ -44,6 +46,9 @@ abstract class AbstractMongoIntegration {
     @Configuration
     @EnableMongoRepositories("com.jtbdevelopment")
     private static class IntegrationMongoConfiguration extends AbstractMongoConfiguration {
+        @Autowired
+        private List<MongoConverter> mongoConverters
+
         @Bean
         public static PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer() {
             return new PropertySourcesPlaceholderConfigurer();
@@ -56,6 +61,11 @@ abstract class AbstractMongoIntegration {
             registry.addConnectionFactory(new FakeFacebookConnectionFactory())
             registry.addConnectionFactory(new FakeTwitterConnectionFactory())
             return registry;
+        }
+
+        @Override
+        CustomConversions customConversions() {
+            return new CustomConversions(mongoConverters)
         }
 
         @Override
@@ -102,6 +112,7 @@ abstract class AbstractMongoIntegration {
     static void tearDownMongo() throws Exception {
         if (mongodExecutable != null)
             mongodExecutable.stop();
+        mongodExecutable = null
     }
 
 }

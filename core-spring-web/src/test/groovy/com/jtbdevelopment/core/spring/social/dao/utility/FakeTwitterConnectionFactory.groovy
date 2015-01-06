@@ -13,7 +13,7 @@ class FakeTwitterConnectionFactory extends FakeConnectionFactory<FakeTwitterApi>
     }
 
     @Override
-    Connection<Object> createConnection(final ConnectionData data) {
+    Connection<FakeTwitterApi> createConnection(final ConnectionData data) {
         return new FakeTwitterConnection(data)
     }
 }

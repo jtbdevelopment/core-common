@@ -13,7 +13,7 @@ class FakeFacebookConnectionFactory extends FakeConnectionFactory<FakeFacebookAp
     }
 
     @Override
-    Connection<Object> createConnection(final ConnectionData data) {
+    Connection<FakeFacebookApi> createConnection(final ConnectionData data) {
         return new FakeFacebookConnection(data)
     }
 }

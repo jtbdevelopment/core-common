@@ -2,6 +2,7 @@ package com.jtbdevelopment.core.mongo.spring.security.rememberme
 
 import com.jtbdevelopment.core.mongo.spring.AbstractMongoIntegration
 import com.mongodb.*
+import org.junit.Before
 import org.junit.Test
 import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken
 
@@ -18,11 +19,18 @@ class MongoPersistentTokenRepositoryIntegration extends AbstractMongoIntegration
     public static final String SERIES_COLUMN = 'series'
     public static final String TOKEN_COLUMN = 'tokenValue'
     public static final String DATE_COLUMN = 'date'
+    public static final String TOKEN_COLLECTION_NAME = 'rememberMeToken'
+
+    private DBCollection collection
+
+    @Before
+    void setup() {
+        assert db.collectionExists(TOKEN_COLLECTION_NAME)
+        collection = db.getCollection(TOKEN_COLLECTION_NAME)
+    }
 
     @Test
     public void testCollectionConfiguration() {
-        assert db.collectionExists('rememberMeToken')
-        DBCollection collection = db.getCollection('rememberMeToken')
         List<DBObject> indices = collection.indexInfo
         boolean seriesIndexFound = false
         indices.each {
@@ -42,7 +50,7 @@ class MongoPersistentTokenRepositoryIntegration extends AbstractMongoIntegration
 
     @Test
     void testNewSeries() {
-        DBCollection collection = db.getCollection('rememberMeToken')
+        DBCollection collection = db.getCollection(TOKEN_COLLECTION_NAME)
         PersistentRememberMeToken token = new PersistentRememberMeToken('newuser', 'newSeries', 'newToken', new Date())
         repository.createNewToken(token)
 
@@ -58,7 +66,6 @@ class MongoPersistentTokenRepositoryIntegration extends AbstractMongoIntegration
         def series = 'findseries'
         def value = 'findValue'
 
-        DBCollection collection = db.getCollection('rememberMeToken')
         collection.insert(BasicDBObjectBuilder.start().
                 add(USER_COLUMN, user).
                 add(SERIES_COLUMN, series).
@@ -80,7 +87,7 @@ class MongoPersistentTokenRepositoryIntegration extends AbstractMongoIntegration
         def date = new Date()
         def user = 'deleteuser'
 
-        DBCollection collection = db.getCollection('rememberMeToken')
+        DBCollection collection = db.getCollection(TOKEN_COLLECTION_NAME)
         collection.insert(BasicDBObjectBuilder.start().
                 add(USER_COLUMN, user).
                 add(SERIES_COLUMN, 'deleteSeries1').
@@ -103,8 +110,6 @@ class MongoPersistentTokenRepositoryIntegration extends AbstractMongoIntegration
 
     @Test
     public void testUpdatingTokenModifiesTokenValueAndLastUsed() {
-        DBCollection collection = db.getCollection('rememberMeToken')
-
         def date = new Date(0)
         def user = 'updateUser'
         def series = 'updateSeries'
@@ -127,9 +132,6 @@ class MongoPersistentTokenRepositoryIntegration extends AbstractMongoIntegration
 
     @Test
     public void testUpdatingTokenWithNoSeries() {
-        DBCollection collection = db.getCollection('rememberMeToken')
-
-        def user = 'updateUser'
         def series = 'updateSeries'
         def newValue = 'updateValue2'
         def newDate = new Date()
