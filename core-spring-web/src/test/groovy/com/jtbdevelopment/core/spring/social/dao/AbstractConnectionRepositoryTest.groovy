@@ -42,15 +42,16 @@ class AbstractConnectionRepositoryTest extends ConnectionTestCase {
         StringConnectionRepository.providerConnectionFactoryMap = providers
     }
 
-    void testSortDefinition() {
-        assert StringConnectionRepository.SORT.toString() == 'providerId: ASC,creationTime: ASC'
+    void testSortDefinitions() {
+        assert StringConnectionRepository.SORT_PID_CREATED.toString() == 'providerId: ASC,created: ASC'
+        assert StringConnectionRepository.SORT_CREATED.toString() == 'created: ASC'
     }
 
     void testFindAllConnectionsWithValidProviders() {
         StringConnectionRepository.socialConnectionRepository = [
                 findByUserId: {
                     String id, Sort s ->
-                        assert s.is(AbstractConnectionRepository.SORT)
+                        assert s.is(AbstractConnectionRepository.SORT_PID_CREATED)
                         assert id == TESTID
                         return [FACEBOOK1SC, FACEBOOK2SC, TWITTER1SC]
                 }
@@ -69,7 +70,7 @@ class AbstractConnectionRepositoryTest extends ConnectionTestCase {
         StringConnectionRepository.socialConnectionRepository = [
                 findByUserId: {
                     String id, Sort s ->
-                        assert s.is(AbstractConnectionRepository.SORT)
+                        assert s.is(AbstractConnectionRepository.SORT_PID_CREATED)
                         assert id == TESTID
                         return []
                 }
@@ -85,7 +86,7 @@ class AbstractConnectionRepositoryTest extends ConnectionTestCase {
         StringConnectionRepository.socialConnectionRepository = [
                 findByUserId: {
                     String id, Sort s ->
-                        assert s.is(AbstractConnectionRepository.SORT)
+                        assert s.is(AbstractConnectionRepository.SORT_PID_CREATED)
                         assert id == TESTID
                         return [FACEBOOK1SC, FACEBOOK2SC, TWITTER1SC, NEWCO1SC]
                 }
@@ -99,7 +100,7 @@ class AbstractConnectionRepositoryTest extends ConnectionTestCase {
         StringConnectionRepository.socialConnectionRepository = [
                 findByUserIdAndProviderId: {
                     String id, String providerId, Sort s ->
-                        assert s.is(AbstractConnectionRepository.SORT)
+                        assert s.is(AbstractConnectionRepository.SORT_CREATED)
                         assert providerId == FACEBOOK
                         assert id == TESTID
                         return [FACEBOOK2SC, FACEBOOK1SC]
@@ -115,7 +116,7 @@ class AbstractConnectionRepositoryTest extends ConnectionTestCase {
         StringConnectionRepository.socialConnectionRepository = [
                 findByUserIdAndProviderId: {
                     String id, String providerId, Sort s ->
-                        assert s.is(AbstractConnectionRepository.SORT)
+                        assert s.is(AbstractConnectionRepository.SORT_CREATED)
                         assert providerId == NEWCO
                         assert id == TESTID
                         return []
@@ -129,7 +130,7 @@ class AbstractConnectionRepositoryTest extends ConnectionTestCase {
         StringConnectionRepository.socialConnectionRepository = [
                 findByUserIdAndProviderId: {
                     String id, String providerId, Sort s ->
-                        assert s.is(AbstractConnectionRepository.SORT)
+                        assert s.is(AbstractConnectionRepository.SORT_CREATED)
                         assert providerId == FACEBOOK
                         assert id == TESTID
                         return [FACEBOOK2SC, FACEBOOK1SC]
@@ -145,7 +146,7 @@ class AbstractConnectionRepositoryTest extends ConnectionTestCase {
         StringConnectionRepository.socialConnectionRepository = [
                 findByUserIdAndProviderId: {
                     String id, String providerId, Sort s ->
-                        assert s.is(AbstractConnectionRepository.SORT)
+                        assert s.is(AbstractConnectionRepository.SORT_CREATED)
                         assert providerId == TWITTER
                         assert id == TESTID
                         return []
@@ -165,7 +166,7 @@ class AbstractConnectionRepositoryTest extends ConnectionTestCase {
                 findByUserIdAndProviderIdAndProviderUserIdIn: {
                     String uid, String p, Collection<String> pids, Sort sort ->
                         assert p == FACEBOOK || p == TWITTER
-                        assert sort.is(StringConnectionRepository.SORT)
+                        assert sort.is(StringConnectionRepository.SORT_PID_CREATED)
                         assert uid == TESTID
                         switch (p) {
                             case FACEBOOK:
@@ -264,7 +265,7 @@ class AbstractConnectionRepositoryTest extends ConnectionTestCase {
                     String uid, String p, Sort s ->
                         assert uid == TESTID
                         assert p == FACEBOOK
-                        assert s.is(StringConnectionRepository.SORT)
+                        assert s.is(StringConnectionRepository.SORT_CREATED)
                         return [FACEBOOK2SC, FACEBOOK1SC]
                 }
         ] as AbstractSocialConnectionRepository
@@ -277,7 +278,7 @@ class AbstractConnectionRepositoryTest extends ConnectionTestCase {
                     String uid, String p, Sort s ->
                         assert uid == TESTID
                         assert p == FACEBOOK
-                        assert s.is(StringConnectionRepository.SORT)
+                        assert s.is(StringConnectionRepository.SORT_CREATED)
                         return []
                 }
         ] as AbstractSocialConnectionRepository
@@ -292,7 +293,7 @@ class AbstractConnectionRepositoryTest extends ConnectionTestCase {
                     String uid, String p, Sort s ->
                         assert uid == TESTID
                         assert p == FACEBOOK
-                        assert s.is(StringConnectionRepository.SORT)
+                        assert s.is(StringConnectionRepository.SORT_CREATED)
                         return [FACEBOOK2SC, FACEBOOK1SC]
                 }
         ] as AbstractSocialConnectionRepository
@@ -305,7 +306,7 @@ class AbstractConnectionRepositoryTest extends ConnectionTestCase {
                     String uid, String p, Sort s ->
                         assert uid == TESTID
                         assert p == FACEBOOK
-                        assert s.is(StringConnectionRepository.SORT)
+                        assert s.is(StringConnectionRepository.SORT_CREATED)
                         return []
                 }
         ] as AbstractSocialConnectionRepository
@@ -473,6 +474,7 @@ class AbstractConnectionRepositoryTest extends ConnectionTestCase {
         assert connection.accessToken == socialConnection.accessToken?.reverse()
         assert connection.refreshToken == socialConnection.refreshToken?.reverse()
         assert connection.secret == socialConnection.secret?.reverse()
+        assert connection.expireTime == socialConnection.expireTime
     }
 
 }

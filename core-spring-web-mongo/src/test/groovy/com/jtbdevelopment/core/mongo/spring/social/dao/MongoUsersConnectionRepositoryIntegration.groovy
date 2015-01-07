@@ -11,8 +11,12 @@ import org.junit.Test
 import org.springframework.security.crypto.encrypt.TextEncryptor
 import org.springframework.social.connect.ConnectionData
 import org.springframework.social.connect.ConnectionFactoryLocator
+import org.springframework.social.connect.ConnectionKey
 import org.springframework.social.connect.ConnectionRepository
 import org.springframework.social.connect.ConnectionSignUp
+import org.springframework.social.connect.NoSuchConnectionException
+import org.springframework.util.LinkedMultiValueMap
+import org.springframework.util.MultiValueMap
 
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -39,7 +43,7 @@ class MongoUsersConnectionRepositoryIntegration extends AbstractMongoIntegration
     //  Equiv of insertTwitter
     public static final USER1_TWITTER1 = [
             (USERID_COLUMN)        : '1',
-            (PROVIDERID_COLUMN)    : FakeFacebookApi.FACEBOOK,
+            (PROVIDERID_COLUMN)    : FakeTwitterApi.TWITTER,
             (PROVIDERUSERID_COLUMN): '1',
             (CREATED_COLUMN)       : ZonedDateTime.now(GMT),
             (DISPLAYNAME_COLUMN)   : '@kdonald',
@@ -67,17 +71,17 @@ class MongoUsersConnectionRepositoryIntegration extends AbstractMongoIntegration
 
     //  equiv of insertFacebookConnection2
     public static final USER1_FACEBOOK10 = [
-            USERID_COLUMN        : '1',
-            PROVIDERID_COLUMN    : FakeFacebookApi.FACEBOOK,
-            PROVIDERUSERID_COLUMN: '10',
-            CREATED_COLUMN       : ZonedDateTime.now(GMT),
-            DISPLAYNAME_COLUMN   : null,
-            PROFILE_COLUMN       : null,
-            IMAGE_COLUMN         : null,
-            TOKEN_COLUMN         : '456789012',
-            SECRET_COLUMN        : null,
-            REFRESH_COLUMN       : '56789012',
-            EXPIRE_COLUMN        : System.currentTimeMillis() + 3600000
+            (USERID_COLUMN)        : '1',
+            (PROVIDERID_COLUMN)    : FakeFacebookApi.FACEBOOK,
+            (PROVIDERUSERID_COLUMN): '10',
+            (CREATED_COLUMN)       : ZonedDateTime.now(GMT),
+            (DISPLAYNAME_COLUMN)   : null,
+            (PROFILE_COLUMN)       : null,
+            (IMAGE_COLUMN)         : null,
+            (TOKEN_COLUMN)         : '456789012',
+            (SECRET_COLUMN)        : null,
+            (REFRESH_COLUMN)       : '56789012',
+            (EXPIRE_COLUMN)        : System.currentTimeMillis() + 3600000
     ]
 
     //  equiv of insertFacebookConnection3
@@ -108,6 +112,21 @@ class MongoUsersConnectionRepositoryIntegration extends AbstractMongoIntegration
             (SECRET_COLUMN)        : null,
             (REFRESH_COLUMN)       : '345678901',
             (EXPIRE_COLUMN)        : System.currentTimeMillis() + 3600000
+    ]
+
+    //  Equiv of insertTwitter
+    public static final USER1_NEWCO1 = [
+            (USERID_COLUMN)        : '1',
+            (PROVIDERID_COLUMN)    : 'NEWCONNECTION',   // unregisted
+            (PROVIDERUSERID_COLUMN): '1',
+            (CREATED_COLUMN)       : ZonedDateTime.now(GMT),
+            (DISPLAYNAME_COLUMN)   : '@kdonald',
+            (PROFILE_COLUMN)       : 'http://twitter.com/kdonald',
+            (IMAGE_COLUMN)         : 'http://twitter.com/kdonald/picture',
+            (TOKEN_COLUMN)         : '123456789',
+            (SECRET_COLUMN)        : '987654321',
+            (REFRESH_COLUMN)       : null,
+            (EXPIRE_COLUMN)        : null
     ]
 
     protected Map<String, FakeConnectionFactory> providers;
@@ -250,7 +269,7 @@ class MongoUsersConnectionRepositoryIntegration extends AbstractMongoIntegration
     }
 
     @Test
-    public void findUserIdWithConnectionNoConnection_withConnectionSignUpReturningNull() {
+    public void testFindUserIdWithConnectionNoConnectionWithConnectionSignUpReturningNull() {
         org.springframework.social.connect.Connection<?> connection = providers[FakeFacebookApi.FACEBOOK].createConnection(
                 createConnectionData([(PROVIDERUSERID_COLUMN): '12345', (PROVIDERID_COLUMN): FakeFacebookApi.FACEBOOK])
         );
@@ -265,6 +284,178 @@ class MongoUsersConnectionRepositoryIntegration extends AbstractMongoIntegration
         } finally {
             socialConnectionRepository.connectionSignUp = null;
         }
+    }
+
+    @Test
+    public void testFindUserIdsConnectedTo() {
+        insertSocialConnectionRow(USER1_FACEBOOK9)
+        insertSocialConnectionRow(USER2_FACEBOOK11)
+        Set<String> localUserIds = socialConnectionRepository.findUserIdsConnectedTo("facebook", new HashSet<String>(Arrays.asList("9", "11")));
+        assert 2 == localUserIds.size();
+        assert localUserIds.contains("1");
+        assert localUserIds.contains("2");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testFindAllConnections() {
+        insertSocialConnectionRow(USER1_TWITTER1)
+        insertSocialConnectionRow(USER1_FACEBOOK9)
+        MultiValueMap<String, org.springframework.social.connect.Connection<?>> connections = user1SocialConnectionRepository.findAllConnections();
+        assert 2 == connections.size();
+        org.springframework.social.connect.Connection<FakeFacebookApi> facebook = connections.getFirst(FakeFacebookApi.FACEBOOK);
+        compareConnectionToMap(facebook, USER1_FACEBOOK9)
+        org.springframework.social.connect.Connection<FakeTwitterApi> twitter = connections.getFirst(FakeTwitterApi.TWITTER);
+        compareConnectionToMap(twitter, USER1_TWITTER1);
+    }
+
+    @Test
+    public void testFindAllConnectionsMultipleConnectionResults() {
+        insertSocialConnectionRow(USER1_TWITTER1)
+        insertSocialConnectionRow(USER1_FACEBOOK9)
+        insertSocialConnectionRow(USER1_FACEBOOK10)
+        MultiValueMap<String, org.springframework.social.connect.Connection<?>> connections = user1SocialConnectionRepository.findAllConnections();
+        assert 2 == connections.size();
+        assert 2 == connections.get(FakeFacebookApi.FACEBOOK).size();
+        assert 1 == connections.get(FakeTwitterApi.TWITTER).size();
+    }
+
+    @Test
+    public void testFindAllConnectionsEmptyResult() {
+        MultiValueMap<String, org.springframework.social.connect.Connection<?>> connections = user1SocialConnectionRepository.findAllConnections();
+        assert 2 == connections.size();
+        assert 0 == connections.get(FakeFacebookApi.FACEBOOK).size();
+        assert 0 == connections.get(FakeTwitterApi.TWITTER).size();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testNoSuchConnectionFactory() {
+        insertSocialConnectionRow(USER1_NEWCO1);
+        user1SocialConnectionRepository.findAllConnections();
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testFindConnectionsByProviderId() {
+        insertSocialConnectionRow(USER1_TWITTER1)
+        List<org.springframework.social.connect.Connection<?>> connections = user1SocialConnectionRepository.findConnections(FakeTwitterApi.TWITTER);
+        assert 1 == connections.size();
+        compareConnectionToMap(connections.get(0), USER1_TWITTER1);
+    }
+
+    @Test
+    public void testFindConnectionsByProviderIdEmptyResult() {
+        assert user1SocialConnectionRepository.findConnections(FakeFacebookApi.FACEBOOK).isEmpty();
+    }
+
+    @Test
+    public void testFindConnectionsByApi() {
+        insertSocialConnectionRow(USER1_FACEBOOK9)
+        insertSocialConnectionRow(USER1_FACEBOOK10)
+        List<org.springframework.social.connect.Connection<?>> connections = user1SocialConnectionRepository.findConnections(FakeFacebookApi.class);
+        assert 2 == connections.size();
+        compareConnectionToMap(connections.get(0), USER1_FACEBOOK9);
+        compareConnectionToMap(connections.get(1), USER1_FACEBOOK10);
+    }
+
+    @Test
+    public void testFindConnectionsByApiEmptyResult() {
+        assert user1SocialConnectionRepository.findConnections(FakeFacebookApi.class).isEmpty();
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testFindConnectionsToUsers() {
+        insertSocialConnectionRow(USER1_TWITTER1)
+        insertSocialConnectionRow(USER1_FACEBOOK9)
+        insertSocialConnectionRow(USER1_FACEBOOK10)
+
+        MultiValueMap<String, String> providerUsers = new LinkedMultiValueMap<String, String>();
+        providerUsers.add(FakeFacebookApi.FACEBOOK, "10");
+        providerUsers.add(FakeFacebookApi.FACEBOOK, "9");
+        providerUsers.add(FakeTwitterApi.TWITTER, "1");
+        MultiValueMap<String, org.springframework.social.connect.Connection<?>> connectionsForUsers = user1SocialConnectionRepository.findConnectionsToUsers(providerUsers);
+        assert 2 == connectionsForUsers.size();
+        assert "10" == connectionsForUsers.getFirst(FakeFacebookApi.FACEBOOK).getKey().getProviderUserId();
+        compareConnectionToMap(connectionsForUsers.get(FakeFacebookApi.FACEBOOK).get(1), USER1_FACEBOOK9)
+        compareConnectionToMap(connectionsForUsers.get(FakeTwitterApi.TWITTER).get(0), USER1_TWITTER1)
+    }
+
+    //  This is the one significant departure from the Jdbc Test
+    //  If there are no results JDBC returns an empty map
+    //  We return a map of asked for providers to null filled lists
+    //  The caller needs to deal with partial results anyway and we couldn't actually find a caller
+    @Test
+    public void testFindConnectionsToUsersEmptyResult() {
+        MultiValueMap<String, String> providerUsers = new LinkedMultiValueMap<String, String>();
+        providerUsers.add(FakeFacebookApi.FACEBOOK, "1");
+
+        def users = user1SocialConnectionRepository.findConnectionsToUsers(providerUsers)
+        assert users.size() == 1
+        assert users.get(FakeFacebookApi.FACEBOOK).size() == 1
+        assert users.get(FakeFacebookApi.FACEBOOK).get(0) == null
+    }
+
+    //  This test is another minor departure
+    @Test
+    public void testFindConnectionsToUsersNullInput() {
+        assert user1SocialConnectionRepository.findConnectionsToUsers(null).isEmpty()
+    }
+
+    //  This test is another minor departure
+    @Test
+    public void testFindConnectionsToUsersNEmptyInput() {
+        MultiValueMap<String, String> providerUsers = new LinkedMultiValueMap<String, String>();
+        assert user1SocialConnectionRepository.findConnectionsToUsers(providerUsers).isEmpty()
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void findConnectionByKey() {
+        insertSocialConnectionRow(USER1_FACEBOOK9)
+        compareConnectionToMap(
+                user1SocialConnectionRepository.getConnection(new ConnectionKey(FakeFacebookApi.FACEBOOK, "9")),
+                USER1_FACEBOOK9
+        );
+    }
+
+    @Test(expected=NoSuchConnectionException.class)
+    public void findConnectionByKeyNoSuchConnection() {
+        user1SocialConnectionRepository.getConnection(new ConnectionKey(FakeFacebookApi.FACEBOOK, "bogus"));
+    }
+
+    @Test
+    public void findConnectionByApiToUser() {
+        insertSocialConnectionRow(USER1_FACEBOOK9)
+        insertSocialConnectionRow(USER1_FACEBOOK10)
+        compareConnectionToMap(user1SocialConnectionRepository.getConnection(FakeFacebookApi.class, "9"), USER1_FACEBOOK9);
+        assert "10" == user1SocialConnectionRepository.getConnection(FakeFacebookApi.class, "10").getKey().getProviderUserId();
+    }
+
+    @Test(expected=NoSuchConnectionException.class)
+    public void findConnectionByApiToUserNoSuchConnection() {
+        user1SocialConnectionRepository.getConnection(FakeFacebookApi.class, "9");
+    }
+
+    @Test
+    public void findPrimaryConnection() {
+        insertSocialConnectionRow(USER1_FACEBOOK9)
+        compareConnectionToMap(user1SocialConnectionRepository.getPrimaryConnection(FakeFacebookApi.class), USER1_FACEBOOK9);
+    }
+
+
+    private void compareConnectionToMap(
+            final org.springframework.social.connect.Connection<?> connection, final Map values) {
+        assert connection instanceof FakeConnection
+        assert connection.displayName == values[DISPLAYNAME_COLUMN]
+        assert connection.profileUrl == values[PROFILE_COLUMN]
+        assert connection.key.providerId == values[PROVIDERID_COLUMN]
+        assert connection.key.providerUserId == values[PROVIDERUSERID_COLUMN]
+        assert connection.imageUrl == values[IMAGE_COLUMN]
+        assert connection.accessToken == values[TOKEN_COLUMN]
+        assert connection.refreshToken == values[REFRESH_COLUMN]
+        assert connection.secret == values[SECRET_COLUMN]
+        assert connection.expireTime == values[EXPIRE_COLUMN]
     }
 
     protected ConnectionData createConnectionData(final Map values) {
@@ -329,148 +520,6 @@ public class JdbcUsersConnectionRepositoryTest {
             usersConnectionRepository.setTablePrefix(getTablePrefix());
         }
         connectionRepository = usersConnectionRepository.createConnectionRepository("1");
-    }
-
-    @Test
-    public void findUserIdsConnectedTo() {
-        insertFacebookConnection();
-        insertFacebookConnection3();
-        Set<String> localUserIds = usersConnectionRepository.findUserIdsConnectedTo("facebook", new HashSet<String>(Arrays.asList("9", "11")));
-        assertEquals(2, localUserIds.size());
-        assertTrue(localUserIds.contains("1"));
-        assertTrue(localUserIds.contains("2"));
-    }
-
-    @Test
-    @SuppressWarnings("unchecked")
-    public void findAllConnections() {
-        connectionFactoryRegistry.addConnectionFactory(new TestTwitterConnectionFactory());
-        insertTwitterConnection();
-        insertFacebookConnection();
-        MultiValueMap<String, Connection<?>> connections = connectionRepository.findAllConnections();
-        assertEquals(2, connections.size());
-        Connection<TestFacebookApi> facebook = (Connection<TestFacebookApi>) connections.getFirst("facebook");
-        assertFacebookConnection(facebook);
-        Connection<TestTwitterApi> twitter = (Connection<TestTwitterApi>) connections.getFirst("twitter");
-        assertTwitterConnection(twitter);
-    }
-
-    @Test
-    public void findAllConnectionsMultipleConnectionResults() {
-        connectionFactoryRegistry.addConnectionFactory(new TestTwitterConnectionFactory());
-        insertTwitterConnection();
-        insertFacebookConnection();
-        insertFacebookConnection2();
-        MultiValueMap<String, Connection<?>> connections = connectionRepository.findAllConnections();
-        assertEquals(2, connections.size());
-        assertEquals(2, connections.get("facebook").size());
-        assertEquals(1, connections.get("twitter").size());
-    }
-
-    @Test
-    public void findAllConnectionsEmptyResult() {
-        connectionFactoryRegistry.addConnectionFactory(new TestTwitterConnectionFactory());
-        MultiValueMap<String, Connection<?>> connections = connectionRepository.findAllConnections();
-        assertEquals(2, connections.size());
-        assertEquals(0, connections.get("facebook").size());
-        assertEquals(0, connections.get("twitter").size());
-    }
-
-    @Test(expected=IllegalArgumentException.class)
-    public void noSuchConnectionFactory() {
-        insertTwitterConnection();
-        connectionRepository.findAllConnections();
-    }
-
-    @Test
-    @SuppressWarnings("unchecked")
-    public void findConnectionsByProviderId() {
-        connectionFactoryRegistry.addConnectionFactory(new TestTwitterConnectionFactory());
-        insertTwitterConnection();
-        List<Connection<?>> connections = connectionRepository.findConnections("twitter");
-        assertEquals(1, connections.size());
-        assertTwitterConnection((Connection<TestTwitterApi>) connections.get(0));
-    }
-
-    @Test
-    public void findConnectionsByProviderIdEmptyResult() {
-        assertTrue(connectionRepository.findConnections("facebook").isEmpty());
-    }
-
-    @Test
-    public void findConnectionsByApi() {
-        insertFacebookConnection();
-        insertFacebookConnection2();
-        List<Connection<TestFacebookApi>> connections = connectionRepository.findConnections(TestFacebookApi.class);
-        assertEquals(2, connections.size());
-        assertFacebookConnection(connections.get(0));
-    }
-
-    @Test
-    public void findConnectionsByApiEmptyResult() {
-        assertTrue(connectionRepository.findConnections(TestFacebookApi.class).isEmpty());
-    }
-
-    @Test
-    @SuppressWarnings("unchecked")
-    public void findConnectionsToUsers() {
-        connectionFactoryRegistry.addConnectionFactory(new TestTwitterConnectionFactory());
-        insertTwitterConnection();
-        insertFacebookConnection();
-        insertFacebookConnection2();
-        MultiValueMap<String, String> providerUsers = new LinkedMultiValueMap<String, String>();
-        providerUsers.add("facebook", "10");
-        providerUsers.add("facebook", "9");
-        providerUsers.add("twitter", "1");
-        MultiValueMap<String, Connection<?>> connectionsForUsers = connectionRepository.findConnectionsToUsers(providerUsers);
-        assertEquals(2, connectionsForUsers.size());
-        assertEquals("10", connectionsForUsers.getFirst("facebook").getKey().getProviderUserId());
-        assertFacebookConnection((Connection<TestFacebookApi>) connectionsForUsers.get("facebook").get(1));
-        assertTwitterConnection((Connection<TestTwitterApi>) connectionsForUsers.getFirst("twitter"));
-    }
-
-    @Test
-    public void findConnectionsToUsersEmptyResult() {
-        MultiValueMap<String, String> providerUsers = new LinkedMultiValueMap<String, String>();
-        providerUsers.add("facebook", "1");
-        assertTrue(connectionRepository.findConnectionsToUsers(providerUsers).isEmpty());
-    }
-
-    @Test(expected=IllegalArgumentException.class)
-    public void findConnectionsToUsersEmptyInput() {
-        MultiValueMap<String, String> providerUsers = new LinkedMultiValueMap<String, String>();
-        connectionRepository.findConnectionsToUsers(providerUsers);
-    }
-
-    @Test
-    @SuppressWarnings("unchecked")
-    public void findConnectionByKey() {
-        insertFacebookConnection();
-        assertFacebookConnection((Connection<TestFacebookApi>) connectionRepository.getConnection(new ConnectionKey("facebook", "9")));
-    }
-
-    @Test(expected=NoSuchConnectionException.class)
-    public void findConnectionByKeyNoSuchConnection() {
-        connectionRepository.getConnection(new ConnectionKey("facebook", "bogus"));
-    }
-
-    @Test
-    public void findConnectionByApiToUser() {
-        insertFacebookConnection();
-        insertFacebookConnection2();
-        assertFacebookConnection(connectionRepository.getConnection(TestFacebookApi.class, "9"));
-        assertEquals("10", connectionRepository.getConnection(TestFacebookApi.class, "10").getKey().getProviderUserId());
-    }
-
-    @Test(expected=NoSuchConnectionException.class)
-    public void findConnectionByApiToUserNoSuchConnection() {
-        assertFacebookConnection(connectionRepository.getConnection(TestFacebookApi.class, "9"));
-    }
-
-    @Test
-    public void findPrimaryConnection() {
-        insertFacebookConnection();
-        assertFacebookConnection(connectionRepository.getPrimaryConnection(TestFacebookApi.class));
     }
 
     @Test

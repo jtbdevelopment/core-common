@@ -22,9 +22,13 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
     static Map<String, ConnectionFactory<?>> providerConnectionFactoryMap = [:]
     static TextEncryptor encryptor
 
-    protected static final Sort SORT = new Sort(
+    protected static final Sort SORT_PID_CREATED = new Sort(
             new Sort.Order(Sort.Direction.ASC, "providerId"),
-            new Sort.Order(Sort.Direction.ASC, "creationTime"))
+            new Sort.Order(Sort.Direction.ASC, "created")
+    )
+    protected static final Sort SORT_CREATED = new Sort(
+            new Sort.Order(Sort.Direction.ASC, "created")
+    )
 
     final String userId;
 
@@ -34,7 +38,7 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
 
     @Override
     MultiValueMap<String, Connection<?>> findAllConnections() {
-        Iterable<SocialConnection> socialConnections = socialConnectionRepository.findByUserId(userId, SORT)
+        Iterable<SocialConnection> socialConnections = socialConnectionRepository.findByUserId(userId, SORT_PID_CREATED)
         MultiValueMap<String, Connection<?>> connections = new LinkedMultiValueMap<String, Connection<?>>();
         providerConnectionFactoryMap.keySet().each {
             String key ->
@@ -49,7 +53,7 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
 
     @Override
     List<Connection<?>> findConnections(final String providerId) {
-        List<SocialConnection> connections = socialConnectionRepository.findByUserIdAndProviderId(userId, providerId, SORT)
+        List<SocialConnection> connections = socialConnectionRepository.findByUserIdAndProviderId(userId, providerId, SORT_CREATED)
         return connections.collect {
             SocialConnection connection ->
                 mapSocialConnectionToConnection(connection)
@@ -73,7 +77,7 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
                     List<Connection<?>> resultArray = new ArrayList<Connection<?>>(providerUserIds.size())
                     providerUserIds.each { resultArray.add(null) }
                     connectionsByProvider.put(providerId, resultArray)
-                    ((List<SocialConnection>) socialConnectionRepository.findByUserIdAndProviderIdAndProviderUserIdIn(userId, providerId, providerUserIds, SORT)).each {
+                    ((List<SocialConnection>) socialConnectionRepository.findByUserIdAndProviderIdAndProviderUserIdIn(userId, providerId, providerUserIds, SORT_PID_CREATED)).each {
                         SocialConnection socialConnection ->
                             int index = providerUserIds.indexOf(socialConnection.providerUserId)
                             if (index >= 0) {
@@ -119,7 +123,7 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
     }
 
     private Connection<?> findPrimaryConnectionInternal(String providerId) {
-        List<SocialConnection> connections = socialConnectionRepository.findByUserIdAndProviderId(userId, providerId, SORT)
+        List<SocialConnection> connections = socialConnectionRepository.findByUserIdAndProviderId(userId, providerId, SORT_CREATED)
         if (connections.size() > 0) {
             return mapSocialConnectionToConnection(connections[0])
         }
