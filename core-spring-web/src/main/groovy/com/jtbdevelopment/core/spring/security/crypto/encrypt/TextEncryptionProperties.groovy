@@ -20,9 +20,13 @@ class TextEncryptionProperties {
     @Value('${textEncryption.salt:NOTSET}')
     String salt;
 
+    //  Mostly there for testing
+    boolean warnings = false
+
     @PostConstruct
     public void testDefaults() {
         if (password == 'NOTSET' || salt == 'NOTSET') {
+            warnings = true
             logger.warn('-----------------------------------------------------------------------------')
             logger.warn('-----------------------------------------------------------------------------')
             logger.warn('-----------------------------------------------------------------------------')
