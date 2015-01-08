@@ -1,6 +1,6 @@
 package com.jtbdevelopment.core.spring.security.crypto.encrypt
 
-import org.springframework.context.annotation.Bean
+import org.springframework.beans.factory.annotation.Value
 
 import javax.annotation.PostConstruct
 import java.lang.reflect.Method
@@ -15,6 +15,17 @@ class TextEncryptionPropertiesTest extends GroovyTestCase {
     void testPostConstructAnnotation() {
         Method m = TextEncryptionProperties.class.getMethod('testDefaults')
         assert m.getAnnotation(PostConstruct.class)
+    }
+
+    void testValueAnnotations() {
+        assert TextEncryptionProperties.class.
+                getDeclaredField('password')?.
+                getAnnotation(Value.class)?.
+                value() == '${textEncryption.password:NOTSET}'
+        assert TextEncryptionProperties.class.
+                getDeclaredField('salt')?.
+                getAnnotation(Value.class)?.
+                value() == '${textEncryption.salt:NOTSET}'
     }
 
     void testTestDefaultsGenerateWarning() {
