@@ -516,7 +516,7 @@ class MongoUsersConnectionRepositoryIntegration extends AbstractMongoIntegration
         compareConnectionToMap(twitter, USER1_TWITTER1)
         Map newValues = [:]
         newValues.putAll(USER1_TWITTER1)
-        newValues[PROFILE_COLUMN] ="http://twitter.com/kdonald/a_new_picture"
+        newValues[PROFILE_COLUMN] = "http://twitter.com/kdonald/a_new_picture"
         twitter = providers[FakeFacebookApi.FACEBOOK].createConnection(
                 createConnectionData(newValues)
         )

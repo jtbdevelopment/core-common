@@ -7,6 +7,7 @@ package com.jtbdevelopment.core.mongo.spring.social.dao
 class MongoConnectionRepositoryTest extends GroovyTestCase {
     private String id = 'TESTID'
     private MongoConnectionRepository repository = new MongoConnectionRepository(id)
+
     void testConstructor() {
         assert repository.userId == id
     }

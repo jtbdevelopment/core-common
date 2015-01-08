@@ -47,7 +47,7 @@ class MongoRememberMeTokenTest extends GroovyTestCase {
     }
 
     void testClassAnnotations() {
-        Document  d= MongoRememberMeToken.class.getAnnotation(Document.class)
+        Document d = MongoRememberMeToken.class.getAnnotation(Document.class)
         assert d
         assert d.collection() == "rememberMeToken"
         CompoundIndexes ci = MongoRememberMeToken.class.getAnnotation(CompoundIndexes.class)
