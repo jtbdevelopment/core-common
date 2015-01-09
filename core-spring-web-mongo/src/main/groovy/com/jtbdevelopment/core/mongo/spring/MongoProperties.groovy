@@ -31,11 +31,12 @@ class MongoProperties {
     String dbPassword
     WriteConcern dbWriteConcern
 
+    boolean warnings = true;
+
     @Value('${mongo.writeConcern:JOURNALED}')
     void setDbWriteConcern(final String dbWriteConcern) {
         this.dbWriteConcern = WriteConcern.valueOf(dbWriteConcern)
     }
-    boolean warnings = true;
 
     @PostConstruct
     void logInformation() {
@@ -53,11 +54,11 @@ class MongoProperties {
             logger.info('Using unauthenticated connection.')
         } else {
             logger.info('Using authenticated connection.')
-            if (StringUtils.isEmpty(dbPassword) && !StringUtils.isEmpty(dbUser)) {
+            if (StringUtils.isEmpty(dbPassword) || StringUtils.isEmpty(dbUser)) {
                 warnings = true
-                logger.warn('--------------------------------------------------------------------')
-                logger.warn('WARNING:  Connecting with a user, but no password.  Not recommended.')
-                logger.warn('--------------------------------------------------------------------')
+                logger.warn('-----------------------------------------------------')
+                logger.warn('WARNING:  Connecting with a missing user or password.')
+                logger.warn('-----------------------------------------------------')
             }
         }
     }
