@@ -1,11 +1,7 @@
 package com.jtbdevelopment.core.mongo.spring
 
-import com.jtbdevelopment.core.mongo.spring.converters.MongoConverter
 import com.jtbdevelopment.core.mongo.spring.security.rememberme.MongoPersistentTokenRepository
-import com.jtbdevelopment.core.spring.social.dao.utility.FakeFacebookConnectionFactory
-import com.jtbdevelopment.core.spring.social.dao.utility.FakeTwitterConnectionFactory
 import com.mongodb.DB
-import com.mongodb.Mongo
 import com.mongodb.MongoClient
 import de.flapdoodle.embed.mongo.MongodExecutable
 import de.flapdoodle.embed.mongo.MongodStarter
@@ -16,16 +12,8 @@ import de.flapdoodle.embed.mongo.distribution.Version
 import de.flapdoodle.embed.process.runtime.Network
 import org.junit.AfterClass
 import org.junit.BeforeClass
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer
-import org.springframework.data.mongodb.config.AbstractMongoConfiguration
-import org.springframework.data.mongodb.core.convert.CustomConversions
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories
-import org.springframework.social.connect.support.ConnectionFactoryRegistry
 
 /**
  * Date: 1/4/2015
@@ -43,49 +31,6 @@ abstract class AbstractMongoIntegration {
 
 
     @SuppressWarnings("GroovyUnusedDeclaration")
-    @Configuration
-    @EnableMongoRepositories("com.jtbdevelopment")
-    private static class IntegrationMongoConfiguration extends AbstractMongoConfiguration {
-        @Autowired
-        private List<MongoConverter> mongoConverters
-
-        @Bean
-        public static PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer() {
-            return new PropertySourcesPlaceholderConfigurer();
-        }
-
-        @Bean
-        @Autowired
-        ConnectionFactoryRegistry connectionFactoryLocator() {
-            ConnectionFactoryRegistry registry = new ConnectionFactoryRegistry();
-            registry.addConnectionFactory(new FakeFacebookConnectionFactory())
-            registry.addConnectionFactory(new FakeTwitterConnectionFactory())
-            return registry;
-        }
-
-        @Override
-        CustomConversions customConversions() {
-            return new CustomConversions(mongoConverters)
-        }
-
-        @Override
-        protected String getDatabaseName() {
-            return DB_NAME
-        }
-
-        @Override
-        protected String getMappingBasePackage() {
-            return "com.jtbdevelopment"
-        }
-
-        @Override
-        Mongo mongo() throws Exception {
-            MongoClient mongo = new MongoClient("localhost", DB_PORT);
-            return mongo
-        }
-    }
-
-    @SuppressWarnings("GroovyUnusedDeclaration")
     @BeforeClass
     static void setupMongo() throws Exception {
         if (mongodExecutable) return
@@ -101,6 +46,9 @@ abstract class AbstractMongoIntegration {
         mongodExecutable = starter.prepare(mongodConfig);
         mongodExecutable.start();
 
+        System.setProperty('mongo.port', DB_PORT.toString())
+        System.setProperty('mongo.dbName', DB_NAME)
+        System.setProperty('mongo.writeConcern', 'ACKNOWLEDGED')
         context = new AnnotationConfigApplicationContext("com.jtbdevelopment")
         repository = context.getBean(MongoPersistentTokenRepository.class)
         mongoClient = new MongoClient("localhost", DB_PORT);

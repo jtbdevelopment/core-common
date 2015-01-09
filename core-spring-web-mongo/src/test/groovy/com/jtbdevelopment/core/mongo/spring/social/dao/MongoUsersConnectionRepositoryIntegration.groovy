@@ -1,6 +1,7 @@
 package com.jtbdevelopment.core.mongo.spring.social.dao
 
 import com.jtbdevelopment.core.mongo.spring.AbstractMongoIntegration
+import com.jtbdevelopment.core.mongo.spring.MongoConfiguration
 import com.jtbdevelopment.core.mongo.spring.converters.StringToZonedDateTimeConverter
 import com.jtbdevelopment.core.mongo.spring.converters.ZonedDateTimeToStringConverter
 import com.jtbdevelopment.core.spring.social.dao.AbstractUsersConnectionRepository
@@ -8,8 +9,12 @@ import com.jtbdevelopment.core.spring.social.dao.utility.*
 import com.mongodb.*
 import org.junit.Before
 import org.junit.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.crypto.encrypt.TextEncryptor
 import org.springframework.social.connect.*
+import org.springframework.social.connect.support.ConnectionFactoryRegistry
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
 
@@ -23,6 +28,18 @@ import java.time.ZonedDateTime
  * Significantly derived from spring's JdbcUsersConnectionRepositoryTest
  */
 class MongoUsersConnectionRepositoryIntegration extends AbstractMongoIntegration {
+    @SuppressWarnings("GroovyUnusedDeclaration")
+    @Configuration
+    private static class IntegrationSocialConfiguration extends MongoConfiguration {
+        @Bean
+        @Autowired
+        ConnectionFactoryRegistry connectionFactoryLocator() {
+            ConnectionFactoryRegistry registry = new ConnectionFactoryRegistry();
+            registry.addConnectionFactory(new FakeFacebookConnectionFactory())
+            registry.addConnectionFactory(new FakeTwitterConnectionFactory())
+            return registry;
+        }
+    }
 
     private static final String CREATED_COLUMN = 'created'
     private static final String USERID_COLUMN = 'userId'
@@ -35,7 +52,7 @@ class MongoUsersConnectionRepositoryIntegration extends AbstractMongoIntegration
     private static final String SECRET_COLUMN = 'secret'
     private static final String REFRESH_COLUMN = 'refreshToken'
     private static final String EXPIRE_COLUMN = 'expireTime'
-    public static final ZoneId GMT = ZoneId.of("GMT")
+    private static final ZoneId GMT = ZoneId.of("GMT")
 
     //  Equiv of insertTwitter
     public static final USER1_TWITTER1 = [

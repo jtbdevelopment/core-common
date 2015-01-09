@@ -21,7 +21,7 @@ class TextEncryptionProperties {
     String salt;
 
     //  Mostly there for testing
-    boolean warnings = false
+    boolean warnings = true
 
     @PostConstruct
     public void testDefaults() {
@@ -34,6 +34,9 @@ class TextEncryptionProperties {
             logger.warn('-----------------------------------------------------------------------------')
             logger.warn('-----------------------------------------------------------------------------')
             logger.warn('-----------------------------------------------------------------------------')
+        } else {
+            logger.info('text encryption properties correctly initialized with non-default values.')
+            warnings = false
         }
     }
 }

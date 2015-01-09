@@ -31,7 +31,7 @@ class TextEncryptionPropertiesTest extends GroovyTestCase {
     void testTestDefaultsGenerateWarning() {
         properties.password = 'NOTSET'
         properties.salt = 'NOTSET'
-        assertFalse properties.warnings
+        assert properties.warnings
         properties.testDefaults()
         assert properties.warnings
     }
@@ -39,7 +39,7 @@ class TextEncryptionPropertiesTest extends GroovyTestCase {
     void testTestPasswordDefaultsGenerateWarning() {
         properties.password = 'NOTSET'
         properties.salt = 'SET'
-        assertFalse properties.warnings
+        assert properties.warnings
         properties.testDefaults()
         assert properties.warnings
     }
@@ -47,7 +47,7 @@ class TextEncryptionPropertiesTest extends GroovyTestCase {
     void testTestSaltDefaultsGenerateWarning() {
         properties.password = 'SET'
         properties.salt = 'NOTSET'
-        assertFalse properties.warnings
+        assert properties.warnings
         properties.testDefaults()
         assert properties.warnings
     }
@@ -55,7 +55,7 @@ class TextEncryptionPropertiesTest extends GroovyTestCase {
     void testTestProperlySetNoWarnings() {
         properties.password = 'SET'
         properties.salt = 'SET'
-        assertFalse properties.warnings
+        assert properties.warnings
         properties.testDefaults()
         assertFalse properties.warnings
     }
