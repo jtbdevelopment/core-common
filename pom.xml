@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.jtbdevelopment.core-common</groupId>
     <artifactId>core-common</artifactId>
     <packaging>pom</packaging>
-    <version>0.8-SNAPSHOT</version>
+    <version>0.8</version>
     <modules>
         <module>core-spring-web</module>
         <module>core-spring-web-mongo</module>
@@ -42,7 +41,7 @@
         <connection>scm:git:https://github.com/jtbdevelopment/core-common.git</connection>
         <developerConnection>scm:git:git@github.com:jtbdevelopment/core-common.git</developerConnection>
         <url>https://github.com/jtbdevelopment/core-common.git</url>
-        <tag>HEAD</tag>
+        <tag>core-common-0.8</tag>
     </scm>
     <distributionManagement>
         <repository>
