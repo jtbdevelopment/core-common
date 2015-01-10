@@ -25,10 +25,10 @@ class MongoConfiguration extends AbstractMongoConfiguration {
     private static final Logger logger = LoggerFactory.getLogger(MongoConfiguration.class)
 
     @Autowired
-    private List<MongoConverter> mongoConverters
+    List<MongoConverter> mongoConverters
 
     @Autowired
-    private MongoProperties mongoProperties
+    MongoProperties mongoProperties
 
     @Override
     CustomConversions customConversions() {
@@ -47,19 +47,20 @@ class MongoConfiguration extends AbstractMongoConfiguration {
 
     @Override
     protected UserCredentials getUserCredentials() {
-        if (StringUtils.isEmpty(mongoProperties.dbPassword) && StringUtils.isEmpty(mongoProperties.dbUser)) {
+        if (StringUtils.isEmpty(mongoProperties.dbPassword) || StringUtils.isEmpty(mongoProperties.dbUser)) {
             return null;
         }
         return new UserCredentials(mongoProperties.dbUser, mongoProperties.dbPassword)
     }
 
+    //  Not unit testable
     @Override
     Mongo mongo() throws Exception {
         MongoClient mongo = new MongoClient(mongoProperties.dbHost, mongoProperties.dbPort);
         try {
             mongo.setWriteConcern(mongoProperties.dbWriteConcern)
         } catch (Exception e) {
-            logger.warn("Unable to set Write Concern of " + mongoProperties.dbWriteConcern)
+            logger.warn("Unable to set Write Concern of " + mongoProperties.dbWriteConcern, e)
         }
         return mongo
     }
