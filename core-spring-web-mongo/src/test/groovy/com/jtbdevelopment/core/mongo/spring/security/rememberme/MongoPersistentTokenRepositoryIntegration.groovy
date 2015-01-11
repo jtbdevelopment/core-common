@@ -21,10 +21,12 @@ class MongoPersistentTokenRepositoryIntegration extends AbstractMongoIntegration
     public static final String DATE_COLUMN = 'date'
     public static final String TOKEN_COLLECTION_NAME = 'rememberMeToken'
 
+    protected static MongoPersistentTokenRepository repository
     private DBCollection collection
 
     @Before
     void setup() {
+        repository = context.getBean(MongoPersistentTokenRepository.class)
         assert db.collectionExists(TOKEN_COLLECTION_NAME)
         collection = db.getCollection(TOKEN_COLLECTION_NAME)
     }

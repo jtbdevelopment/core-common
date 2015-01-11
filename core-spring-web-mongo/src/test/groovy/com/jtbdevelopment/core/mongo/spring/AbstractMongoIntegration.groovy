@@ -1,6 +1,5 @@
 package com.jtbdevelopment.core.mongo.spring
 
-import com.jtbdevelopment.core.mongo.spring.security.rememberme.MongoPersistentTokenRepository
 import com.mongodb.DB
 import com.mongodb.MongoClient
 import de.flapdoodle.embed.mongo.MongodExecutable
@@ -24,7 +23,6 @@ abstract class AbstractMongoIntegration {
     protected static final int DB_PORT = 13051
 
     protected static ApplicationContext context
-    protected static MongoPersistentTokenRepository repository
     protected static MongodExecutable mongodExecutable = null
     protected static MongoClient mongoClient
     protected static DB db
@@ -50,7 +48,6 @@ abstract class AbstractMongoIntegration {
         System.setProperty('mongo.dbName', DB_NAME)
         System.setProperty('mongo.writeConcern', 'ACKNOWLEDGED')
         context = new AnnotationConfigApplicationContext("com.jtbdevelopment")
-        repository = context.getBean(MongoPersistentTokenRepository.class)
         mongoClient = new MongoClient("localhost", DB_PORT);
         db = mongoClient.getDB(DB_NAME);
     }

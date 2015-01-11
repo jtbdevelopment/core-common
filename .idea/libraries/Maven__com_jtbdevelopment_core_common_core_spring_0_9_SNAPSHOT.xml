@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.jtbdevelopment.core-common:core-spring:0.9-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/core-spring/pom.xml!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/core-spring/core-spring-0.9-SNAPSHOT-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/core-spring/core-spring-0.9-SNAPSHOT-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

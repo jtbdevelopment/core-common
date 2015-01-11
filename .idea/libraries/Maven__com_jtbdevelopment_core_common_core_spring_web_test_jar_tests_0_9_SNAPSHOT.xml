@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.jtbdevelopment.core-common:core-spring-web:test-jar:tests:0.9-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/core-spring-web/pom.xml!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/core-spring-web/core-spring-web-0.9-SNAPSHOT-test-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/core-spring-web/core-spring-web-0.9-SNAPSHOT-test-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
