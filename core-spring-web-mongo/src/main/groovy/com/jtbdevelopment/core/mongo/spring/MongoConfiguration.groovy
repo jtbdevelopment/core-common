@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.authentication.UserCredentials
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration
+import org.springframework.data.mongodb.config.EnableMongoAuditing
 import org.springframework.data.mongodb.core.convert.CustomConversions
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories
 import org.springframework.util.StringUtils
@@ -20,6 +21,7 @@ import org.springframework.util.StringUtils
  */
 @CompileStatic
 @EnableMongoRepositories("com.jtbdevelopment")
+@EnableMongoAuditing
 @Configuration
 class MongoConfiguration extends AbstractMongoConfiguration {
     private static final Logger logger = LoggerFactory.getLogger(MongoConfiguration.class)

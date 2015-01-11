@@ -4,6 +4,7 @@ import com.jtbdevelopment.core.mongo.spring.converters.MongoConverter
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.convert.support.GenericConversionService
 import org.springframework.data.authentication.UserCredentials
+import org.springframework.data.mongodb.config.EnableMongoAuditing
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories
 
 /**
@@ -15,6 +16,7 @@ class MongoConfigurationTest extends GroovyTestCase {
 
     void testClassAnnotations() {
         assert MongoConfiguration.class.getAnnotation(Configuration.class)
+        assert MongoConfiguration.class.getAnnotation(EnableMongoAuditing.class)
         assert MongoConfiguration.class.getAnnotation(EnableMongoRepositories.class).value() == ['com.jtbdevelopment']
     }
 
