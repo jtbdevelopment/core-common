@@ -7,12 +7,35 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializerProvider
 
+import javax.annotation.PostConstruct
+
 /**
  * Date: 1/13/15
  * Time: 7:51 PM
  */
 class ObjectMapperFactoryTest extends GroovyTestCase {
     ObjectMapperFactory objectMapperFactory = new ObjectMapperFactory()
+
+    //  Tough to confirm registration other than to do some serialization and deserialization
+    void testCreatesObjectMapperCreationAndReuse() {
+        def numberDeserializer = new NumberDeserializer()
+        def integerSerializer = new IntegerSerializer()
+        def bigDecimalSerializer = new BigDecimalSerializer()
+        objectMapperFactory.serializers = [integerSerializer, bigDecimalSerializer]
+        objectMapperFactory.deserializers = [numberDeserializer]
+        objectMapperFactory.initializeMapper()
+
+        ObjectMapper mapper = objectMapperFactory.getObjectMapper()
+        assert mapper
+        assert mapper.writeValueAsString(new SerializeData()) == '{"intValue":"INTEGER","decimalValue":"BIGDECIMAL"}'
+        DeserializeData out = mapper.readValue('{"intValue":"35"}', DeserializeData.class)
+        assert out
+        assert out.intValue == 5
+    }
+
+    void testPostConstructAnnotation() {
+        assert ObjectMapperFactory.class.getMethod('initializeMapper').isAnnotationPresent(PostConstruct.class)
+    }
 
     private class IntegerSerializer extends AutoRegistrableJsonSerializer<Integer> {
         @Override
@@ -66,18 +89,4 @@ class ObjectMapperFactoryTest extends GroovyTestCase {
         Integer intValue
     }
 
-    void testCreatesObjectMapperCreationAndReuse() {
-        def numberDeserializer = new NumberDeserializer()
-        def integerSerializer = new IntegerSerializer()
-        def bigDecimalSerializer = new BigDecimalSerializer()
-        objectMapperFactory.serializers = [integerSerializer, bigDecimalSerializer]
-        objectMapperFactory.deserializers = [numberDeserializer]
-
-        ObjectMapper mapper = objectMapperFactory.getObjectMapper()
-        assert mapper
-        assert mapper.writeValueAsString(new SerializeData()) == '{"intValue":"INTEGER","decimalValue":"BIGDECIMAL"}'
-        DeserializeData out = mapper.readValue('{"intValue":"35"}', DeserializeData.class)
-        assert out
-        assert out.intValue == 5
-    }
 }
