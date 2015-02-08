@@ -17,23 +17,29 @@ import javax.annotation.PostConstruct
 class ObjectMapperFactory {
     private ObjectMapper objectMapper
 
-    @Autowired
+    @Autowired(required = false)
     List<AutoRegistrableJsonSerializer> serializers
 
-    @Autowired
+    @Autowired(required = false)
     List<AutoRegistrableJsonDeserializer> deserializers
+
+    @Autowired(required = false)
+    List<JacksonModuleCustomization> customizations
 
     @PostConstruct
     void initializeMapper() {
         objectMapper = new ObjectMapper()
         SimpleModule module = new SimpleModule('com.jtbdevelopment.spring.jackson.automatic')
-        deserializers.each {
+        deserializers && deserializers.each {
             AutoRegistrableJsonDeserializer deserializer ->
                 module.addDeserializer(deserializer.registerForClass(), deserializer)
         }
-        serializers.each {
+        serializers && serializers.each {
             AutoRegistrableJsonSerializer serializer ->
                 module.addSerializer(serializer.registerForClass(), serializer)
+        }
+        customizations && customizations.each {
+            it.customizeModule(module)
         }
         objectMapper.registerModule(module)
     }
