@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.module.SimpleModule
+import org.springframework.beans.factory.FactoryBeanNotInitializedException
 
 import javax.annotation.PostConstruct
 
@@ -15,10 +16,25 @@ import javax.annotation.PostConstruct
  * Time: 7:51 PM
  */
 class ObjectMapperFactoryTest extends GroovyTestCase {
+    ObjectMapperFactory objectMapperFactory = new ObjectMapperFactory()
+
+    void testIsSingleton() {
+        assert objectMapperFactory.isSingleton()
+    }
+
+    void testClass() {
+        assert ObjectMapper.class.is(objectMapperFactory.objectType)
+    }
+
+    void testObjectNotInitializedYet() {
+        shouldFail(FactoryBeanNotInitializedException.class) {
+            objectMapperFactory.object
+        }
+    }
 
     //  Tough to confirm registration other than to do some serialization and deserialization
     void testCreatesObjectMapperCreationAndReuse() {
-        ObjectMapperFactory objectMapperFactory = new ObjectMapperFactory()
+        objectMapperFactory = new ObjectMapperFactory()
         def numberDeserializer = new NumberDeserializer()
         def integerSerializer = new IntegerSerializer()
         def bigDecimalSerializer = new BigDecimalSerializer()
@@ -26,7 +42,7 @@ class ObjectMapperFactoryTest extends GroovyTestCase {
         objectMapperFactory.deserializers = [numberDeserializer]
         objectMapperFactory.initializeMapper()
 
-        ObjectMapper mapper = objectMapperFactory.getObjectMapper()
+        ObjectMapper mapper = objectMapperFactory.object
         assert mapper
         assert mapper.writeValueAsString(new SerializeData()) == '{"intValue":"INTEGER","decimalValue":"BIGDECIMAL"}'
         DeserializeData out = mapper.readValue('{"intValue":"35"}', DeserializeData.class)
@@ -38,7 +54,7 @@ class ObjectMapperFactoryTest extends GroovyTestCase {
     void testInitializeWithNullListsOfHelpers() {
         ObjectMapperFactory objectMapperFactory = new ObjectMapperFactory()
         objectMapperFactory.initializeMapper()
-        ObjectMapper mapper = objectMapperFactory.getObjectMapper()
+        ObjectMapper mapper = objectMapperFactory.getObject()
         assertNotNull mapper
     }
 
@@ -53,7 +69,7 @@ class ObjectMapperFactoryTest extends GroovyTestCase {
                 ] as JacksonModuleCustomization
         ]
         objectMapperFactory.initializeMapper()
-        ObjectMapper mapper = objectMapperFactory.getObjectMapper()
+        ObjectMapper mapper = objectMapperFactory.getObject()
         SomeClassWithInterface c = new SomeClassWithInterface()
         assert '{"anInterface":{"value":"X"}}' == mapper.writeValueAsString(c)
 

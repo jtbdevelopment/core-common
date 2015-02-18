@@ -3,6 +3,8 @@ package com.jtbdevelopment.spring.jackson
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import groovy.transform.CompileStatic
+import org.springframework.beans.factory.FactoryBean
+import org.springframework.beans.factory.FactoryBeanNotInitializedException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
@@ -14,7 +16,7 @@ import javax.annotation.PostConstruct
  */
 @CompileStatic
 @Component
-class ObjectMapperFactory {
+class ObjectMapperFactory implements FactoryBean<ObjectMapper> {
     private ObjectMapper objectMapper
 
     @Autowired(required = false)
@@ -44,7 +46,21 @@ class ObjectMapperFactory {
         objectMapper.registerModule(module)
     }
 
-    ObjectMapper getObjectMapper() {
-        return objectMapper
+    @Override
+    ObjectMapper getObject() throws Exception {
+        if (objectMapper) {
+            return objectMapper
+        }
+        throw new FactoryBeanNotInitializedException()
+    }
+
+    @Override
+    Class<?> getObjectType() {
+        return ObjectMapper.class
+    }
+
+    @Override
+    boolean isSingleton() {
+        return true
     }
 }
