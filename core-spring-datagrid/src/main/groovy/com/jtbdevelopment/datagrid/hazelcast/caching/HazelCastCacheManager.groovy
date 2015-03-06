@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap
  */
 @Component
 @CompileStatic
-class HazelCastCacheManager implements CacheManager {
+class HazelcastCacheManager implements CacheManager {
     public static final String LIST_HANDLING_CACHE_SUFFIX = '-LHC'
     @Autowired
     HazelcastInstance hazelCastInstance
@@ -33,7 +33,7 @@ class HazelCastCacheManager implements CacheManager {
             if (map == null) {
                 throw new IllegalStateException('Could not get hazelcast map')
             }
-            Cache wrapper = new HazelCastCache(name, map)
+            Cache wrapper = new HazelcastCache(name, map)
             if (name.endsWith(LIST_HANDLING_CACHE_SUFFIX)) {
                 wrapper = new ListHandlingCache(wrapper)
             }

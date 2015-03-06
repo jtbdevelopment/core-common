@@ -10,11 +10,11 @@ import org.springframework.cache.support.SimpleValueWrapper
  * Time: 7:12 AM
  */
 @CompileStatic
-class HazelCastCache implements Cache {
+class HazelcastCache implements Cache {
     private final IMap map
     final String name
 
-    public HazelCastCache(final String name, final IMap map) {
+    public HazelcastCache(final String name, final IMap map) {
         this.map = map
         this.name = name
     }

@@ -7,12 +7,12 @@ import org.springframework.cache.Cache
  * Date: 2/26/15
  * Time: 6:41 AM
  */
-class HazelCastCacheTest extends GroovyTestCase {
+class HazelcastCacheTest extends GroovyTestCase {
     final static String NAME = 'cache'
 
     void testGetNativeCache() {
         IMap map = [] as IMap
-        HazelCastCache cache = new HazelCastCache(NAME, map)
+        HazelcastCache cache = new HazelcastCache(NAME, map)
         assert map.is(cache.nativeCache)
     }
 
@@ -26,13 +26,13 @@ class HazelCastCacheTest extends GroovyTestCase {
                         return existing
                 }
         ] as IMap
-        HazelCastCache cache = new HazelCastCache(NAME, map)
+        HazelcastCache cache = new HazelcastCache(NAME, map)
         assert existing.is(cache.get(key).get())
     }
 
     void testGetWithNullKey() {
         IMap map = [] as IMap
-        HazelCastCache cache = new HazelCastCache(NAME, map)
+        HazelcastCache cache = new HazelcastCache(NAME, map)
         assertNull cache.get(null)
     }
 
@@ -46,7 +46,7 @@ class HazelCastCacheTest extends GroovyTestCase {
                         return existing
                 }
         ] as IMap
-        HazelCastCache cache = new HazelCastCache(NAME, map)
+        HazelcastCache cache = new HazelcastCache(NAME, map)
         assert existing.is(cache.get(key, String.class))
     }
 
@@ -60,7 +60,7 @@ class HazelCastCacheTest extends GroovyTestCase {
                         return existing
                 }
         ] as IMap
-        HazelCastCache cache = new HazelCastCache(NAME, map)
+        HazelcastCache cache = new HazelcastCache(NAME, map)
         shouldFail(IllegalStateException.class, {
             cache.get(key, Double.class)
         })
@@ -68,20 +68,20 @@ class HazelCastCacheTest extends GroovyTestCase {
 
     void testGetWithTypeWithNulls() {
         IMap map = [] as IMap
-        HazelCastCache cache = new HazelCastCache(NAME, map)
+        HazelcastCache cache = new HazelcastCache(NAME, map)
         assertNull cache.get(null, null)
     }
 
     void testGetWithTypeWithNullKey() {
         IMap map = [] as IMap
-        HazelCastCache cache = new HazelCastCache(NAME, map)
+        HazelcastCache cache = new HazelcastCache(NAME, map)
         assertNull cache.get(null, String.class)
     }
 
     void testGetWithTypeWithNullClass() {
         Object key = new String('X')
         IMap map = [] as IMap
-        HazelCastCache cache = new HazelCastCache(NAME, map)
+        HazelcastCache cache = new HazelcastCache(NAME, map)
         assertNull cache.get(key, null)
     }
 
@@ -99,28 +99,28 @@ class HazelCastCacheTest extends GroovyTestCase {
                         return existing
                 }
         ] as IMap
-        HazelCastCache cache = new HazelCastCache(NAME, map)
+        HazelcastCache cache = new HazelcastCache(NAME, map)
         cache.put(key, value)
         assert put
     }
 
     void testPutNullValues() {
         IMap map = [] as IMap
-        HazelCastCache cache = new HazelCastCache(NAME, map)
+        HazelcastCache cache = new HazelcastCache(NAME, map)
         cache.put(null, null)
         // No failure, no action
     }
 
     void testPutNullValue() {
         String key = new String('X')
-        HazelCastCache cache = new HazelCastCache(NAME, null)
+        HazelcastCache cache = new HazelcastCache(NAME, null)
         cache.put(key, null)
         // No failure, no action
     }
 
     void testPutNullKey() {
         Double value = new Double(0.1)
-        HazelCastCache cache = new HazelCastCache(NAME, null)
+        HazelcastCache cache = new HazelcastCache(NAME, null)
         cache.put(null, value)
     }
 
@@ -152,7 +152,7 @@ class HazelCastCacheTest extends GroovyTestCase {
                         null
                 }
         ] as IMap
-        HazelCastCache cache = new HazelCastCache(NAME, map)
+        HazelcastCache cache = new HazelcastCache(NAME, map)
         Cache.ValueWrapper wrapper = cache.putIfAbsent(key, value)
         assert locked
         assert unlocked
@@ -187,7 +187,7 @@ class HazelCastCacheTest extends GroovyTestCase {
                         return existing
                 }
         ] as IMap
-        HazelCastCache cache = new HazelCastCache(NAME, map)
+        HazelcastCache cache = new HazelcastCache(NAME, map)
         Cache.ValueWrapper wrapper = cache.putIfAbsent(key, value)
         assert locked
         assert unlocked
@@ -214,7 +214,7 @@ class HazelCastCacheTest extends GroovyTestCase {
                         throw new RuntimeException('aaarg')
                 }
         ] as IMap
-        HazelCastCache cache = new HazelCastCache(NAME, map)
+        HazelcastCache cache = new HazelcastCache(NAME, map)
         shouldFail(RuntimeException.class, {
             cache.putIfAbsent(key, value)
         })
@@ -224,21 +224,21 @@ class HazelCastCacheTest extends GroovyTestCase {
 
     void testPutIfAbsentBothNull() {
         IMap map = [] as IMap
-        HazelCastCache cache = new HazelCastCache(NAME, map)
+        HazelcastCache cache = new HazelcastCache(NAME, map)
         assertNull cache.putIfAbsent(null, null).get()
     }
 
     void testPutIfAbsentKeyNull() {
         Object value = new Double(0.1)
         IMap map = [] as IMap
-        HazelCastCache cache = new HazelCastCache(NAME, map)
+        HazelcastCache cache = new HazelcastCache(NAME, map)
         assertNull cache.putIfAbsent(null, value).get()
     }
 
     void testPutIfAbsentValueNull() {
         Object key = new String('X')
         IMap map = [] as IMap
-        HazelCastCache cache = new HazelCastCache(NAME, map)
+        HazelcastCache cache = new HazelcastCache(NAME, map)
         assertNull cache.putIfAbsent(key, null).get()
     }
 
@@ -252,7 +252,7 @@ class HazelCastCacheTest extends GroovyTestCase {
                         called = true
                 }
         ] as IMap
-        HazelCastCache cache = new HazelCastCache(NAME, map)
+        HazelcastCache cache = new HazelcastCache(NAME, map)
         cache.evict(key)
         assert called
     }
@@ -266,7 +266,7 @@ class HazelCastCacheTest extends GroovyTestCase {
                         called = true
                 }
         ] as IMap
-        HazelCastCache cache = new HazelCastCache(NAME, map)
+        HazelcastCache cache = new HazelcastCache(NAME, map)
         cache.evict(null)
         assertFalse called
     }
@@ -278,13 +278,13 @@ class HazelCastCacheTest extends GroovyTestCase {
                     called = true
                 }
         ] as IMap
-        HazelCastCache cache = new HazelCastCache(NAME, map)
+        HazelcastCache cache = new HazelcastCache(NAME, map)
         cache.clear()
         assert called
     }
 
     void testGetName() {
-        HazelCastCache cache = new HazelCastCache(NAME, null)
+        HazelcastCache cache = new HazelcastCache(NAME, null)
         assert NAME == cache.name
     }
 }

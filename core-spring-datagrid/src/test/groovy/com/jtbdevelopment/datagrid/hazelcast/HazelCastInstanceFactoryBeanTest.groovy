@@ -6,8 +6,8 @@ import com.hazelcast.core.HazelcastInstance
  * Date: 2/25/15
  * Time: 7:00 PM
  */
-class HazelCastInstanceFactoryBeanTest extends GroovyTestCase {
-    static HazelCastInstanceFactoryBean factoryBean = new HazelCastInstanceFactoryBean()
+class HazelcastInstanceFactoryBeanTest extends GroovyTestCase {
+    static HazelcastInstanceFactoryBean factoryBean = new HazelcastInstanceFactoryBean()
 
     void testGetObject() {
         assert factoryBean.object

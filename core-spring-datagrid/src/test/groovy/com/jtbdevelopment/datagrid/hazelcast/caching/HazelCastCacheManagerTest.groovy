@@ -9,8 +9,8 @@ import org.springframework.cache.Cache
  * Date: 2/25/15
  * Time: 7:09 PM
  */
-class HazelCastCacheManagerTest extends GroovyTestCase {
-    HazelCastCacheManager manager = new HazelCastCacheManager()
+class HazelcastCacheManagerTest extends GroovyTestCase {
+    HazelcastCacheManager manager = new HazelcastCacheManager()
 
     public void testGetsNewMap() {
         String name = 'named'
@@ -25,7 +25,7 @@ class HazelCastCacheManagerTest extends GroovyTestCase {
 
         Cache c = manager.getCache(name)
         assert c
-        assert c instanceof HazelCastCache
+        assert c instanceof HazelcastCache
         assert c.nativeCache.is(map)
     }
 
@@ -59,7 +59,7 @@ class HazelCastCacheManagerTest extends GroovyTestCase {
 
         Cache c = manager.getCache(name)
         assert c
-        assert c instanceof HazelCastCache
+        assert c instanceof HazelcastCache
         assert c.nativeCache.is(map)
         assert c.is(manager.getCache(name))
         assert c.is(manager.getCache(name))

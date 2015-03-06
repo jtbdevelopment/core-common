@@ -15,7 +15,7 @@ import javax.annotation.PostConstruct
  */
 @Component
 @CompileStatic
-class HazelCastInstanceFactoryBean implements FactoryBean<HazelcastInstance> {
+class HazelcastInstanceFactoryBean implements FactoryBean<HazelcastInstance> {
     private HazelcastInstance instance
 
     @PostConstruct
