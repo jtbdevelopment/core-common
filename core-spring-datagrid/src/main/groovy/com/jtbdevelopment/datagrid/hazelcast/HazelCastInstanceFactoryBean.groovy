@@ -5,6 +5,7 @@ import com.hazelcast.core.Hazelcast
 import com.hazelcast.core.HazelcastInstance
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.FactoryBean
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 import javax.annotation.PostConstruct
@@ -16,13 +17,17 @@ import javax.annotation.PostConstruct
 @Component
 @CompileStatic
 class HazelcastInstanceFactoryBean implements FactoryBean<HazelcastInstance> {
+
     private HazelcastInstance instance
+
+    @Autowired(required = false)
+    List<HazelcastConfigurer> configurers
 
     @PostConstruct
     void setup() {
         Config config = new Config()
         //  TODO network vs cloud config
-        //  TODO map config
+        configurers && configurers.each { it.modifyConfiguration(config) }
         instance = Hazelcast.newHazelcastInstance(config)
     }
 
