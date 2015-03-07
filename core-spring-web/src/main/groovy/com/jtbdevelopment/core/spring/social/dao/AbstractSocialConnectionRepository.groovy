@@ -8,6 +8,9 @@ import org.springframework.data.repository.PagingAndSortingRepository
 /**
  * Date: 12/30/2014
  * Time: 3:42 PM
+ *
+ * TODO - caching?
+ *
  */
 @NoRepositoryBean
 @CompileStatic
