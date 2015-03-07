@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>core-spring-datagrid</artifactId>
+    <artifactId>core-spring-hazelcast</artifactId>
 
     <dependencies>
         <dependency>
@@ -22,11 +22,5 @@
             <artifactId>hazelcast</artifactId>
             <version>3.4.1</version>
         </dependency>
-        <dependency>
-            <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast-spring</artifactId>
-            <version>3.4.1</version>
-        </dependency>
-
     </dependencies>
 </project>

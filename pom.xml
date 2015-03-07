@@ -13,7 +13,7 @@
         <module>core-spring</module>
         <module>core-spring-jackson</module>
         <module>core-spring-quartz</module>
-        <module>core-spring-datagrid</module>
+        <module>core-spring-hazelcast</module>
     </modules>
 
     <properties>
