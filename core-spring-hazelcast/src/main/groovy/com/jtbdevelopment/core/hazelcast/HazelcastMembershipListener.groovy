@@ -1,4 +1,4 @@
-package com.jtbdevelopment.datagrid.hazelcast
+package com.jtbdevelopment.core.hazelcast
 
 import com.hazelcast.config.Config
 import com.hazelcast.config.ListenerConfig

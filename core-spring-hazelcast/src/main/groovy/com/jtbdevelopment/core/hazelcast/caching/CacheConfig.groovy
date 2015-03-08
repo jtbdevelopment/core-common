@@ -1,4 +1,4 @@
-package com.jtbdevelopment.datagrid.hazelcast.caching
+package com.jtbdevelopment.core.hazelcast.caching
 
 import groovy.transform.CompileStatic
 import org.springframework.cache.annotation.EnableCaching

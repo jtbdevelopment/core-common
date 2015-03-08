@@ -8,12 +8,14 @@
     <packaging>pom</packaging>
     <version>1.2-SNAPSHOT</version>
     <modules>
+        <module>core-spring</module>
         <module>core-spring-web</module>
         <module>core-spring-web-mongo</module>
-        <module>core-spring</module>
         <module>core-spring-jackson</module>
         <module>core-spring-quartz</module>
         <module>core-spring-hazelcast</module>
+        <module>core-spring-web-hazelcast</module>
+        <module>core-spring-mongo</module>
     </modules>
 
     <properties>
@@ -23,6 +25,7 @@
         <spring.social.version>1.1.0.RELEASE</spring.social.version>
         <spring.version>4.1.1.RELEASE</spring.version>
         <jackson.version>2.3.2</jackson.version>
+        <javax.servletapi.version>3.1.0</javax.servletapi.version>
     </properties>
 
     <dependencyManagement>

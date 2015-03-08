@@ -1,4 +1,4 @@
-package com.jtbdevelopment.datagrid.hazelcast.caching
+package com.jtbdevelopment.core.hazelcast.caching
 
 import com.hazelcast.core.IMap
 import groovy.transform.CompileStatic
