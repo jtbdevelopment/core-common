@@ -1,7 +1,7 @@
 package com.jtbdevelopment.core.hazelcast.aws
 
 import com.amazonaws.regions.Region
-import com.amazonaws.regions.Regions
+import com.amazonaws.services.ec2.model.Instance
 import com.amazonaws.services.ec2.model.Tag
 import com.amazonaws.util.EC2MetadataUtils
 import groovy.transform.CompileStatic
@@ -43,7 +43,10 @@ class AWSClusterSettings {
     @PostConstruct
     void setup() {
         try {
-            if (hasValidAccessDetails() && hasValidRegion() && hasValidAccessDetails()) {
+            if (hasValidAccessDetails() &&
+                    hasValidRegion() &&
+                    hasValidInstanceInfo() &&
+                    hasValidAccessDetails()) {
                 validAWSCluster = foundAClusterNameInTags()
                 if (validAWSCluster) {
                     logger.info('Found a valid AWS cluster setup in region ' + region + ', with key "' + clusterKey + '" and value "' + clusterValue + '"')
@@ -55,35 +58,38 @@ class AWSClusterSettings {
         }
     }
 
-    protected boolean foundAClusterNameInTags() {
-        List<Tag> tags = awsUtils.getCurrentInstance().tags
-        List<Tag> ordered = []
-        tagsToSearch.each {
-            String tag ->
-                Tag found = tags.find { Tag ec2tag -> ec2tag.key == tag }
-                if (found) ordered.add(found)
-        }
-        if (ordered.empty) {
-            logger.warn('No tags were found in order search list - received ' + tags + ' and searching for ' + tagsToSearch)
-            return false
-        }
+    private boolean foundAClusterNameInTags() {
+        Instance instance = awsUtils.getCurrentInstance()
+        if (instance) {
+            List<Tag> tags = instance.tags
+            List<Tag> ordered = []
+            tagsToSearch.each {
+                String tag ->
+                    Tag found = tags.find { Tag ec2tag -> ec2tag.key == tag }
+                    if (found) ordered.add(found)
+            }
+            if (ordered.empty) {
+                logger.warn('No tags were found in order search list - received ' + tags + ' and searching for ' + tagsToSearch)
+                return false
+            }
 
-        clusterKey = ordered[0].key
-        clusterValue = ordered[0].value
+            clusterKey = ordered[0].key
+            clusterValue = ordered[0].value
+        }
         return (!StringUtils.isEmpty(clusterKey)) && (!StringUtils.isEmpty(clusterValue))
     }
 
-    protected boolean hasValidRegion() {
-        region = Regions.getCurrentRegion()
+    private boolean hasValidRegion() {
+        region = awsUtils.currentRegion
         return (region != null)
     }
 
-    protected boolean hasValidInstanceInfo() {
-        instanceInfo = EC2MetadataUtils.instanceInfo
+    private boolean hasValidInstanceInfo() {
+        instanceInfo = awsUtils.currentInstanceInfo
         return (instanceInfo != null)
     }
 
-    protected boolean hasValidAccessDetails() {
+    private boolean hasValidAccessDetails() {
         if (StringUtils.isEmpty(awsAccessKey)) {
             logger.info('No AWS access key - skipping AWS configuration')
             return false
@@ -94,6 +100,4 @@ class AWSClusterSettings {
         }
         true
     }
-
-
 }

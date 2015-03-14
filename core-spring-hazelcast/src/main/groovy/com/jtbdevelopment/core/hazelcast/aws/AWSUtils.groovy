@@ -1,12 +1,15 @@
 package com.jtbdevelopment.core.hazelcast.aws
 
 import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.regions.Region
+import com.amazonaws.regions.Regions
 import com.amazonaws.services.ec2.AmazonEC2
 import com.amazonaws.services.ec2.AmazonEC2Client
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest
 import com.amazonaws.services.ec2.model.Filter
 import com.amazonaws.services.ec2.model.Instance
 import com.amazonaws.services.ec2.model.Reservation
+import com.amazonaws.util.EC2MetadataUtils
 import groovy.transform.CompileStatic
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -24,6 +27,14 @@ class AWSUtils {
 
     @Autowired
     AWSClusterSettings awsClusterSettings
+
+    Region getCurrentRegion() {
+        return Regions.getCurrentRegion()
+    }
+
+    EC2MetadataUtils.InstanceInfo getCurrentInstanceInfo() {
+        return EC2MetadataUtils.instanceInfo
+    }
 
     Instance getCurrentInstance() {
         AmazonEC2 client = new AmazonEC2Client(new BasicAWSCredentials(awsClusterSettings.awsAccessKey, awsClusterSettings.awsSecretKey))
