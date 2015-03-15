@@ -26,7 +26,6 @@ class HazelcastInstanceFactoryBean implements FactoryBean<HazelcastInstance> {
     @PostConstruct
     void setup() {
         Config config = new Config()
-        //  TODO network vs cloud config
         configurers && configurers.each { it.modifyConfiguration(config) }
         instance = Hazelcast.newHazelcastInstance(config)
     }
