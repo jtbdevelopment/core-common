@@ -9,7 +9,9 @@ import org.springframework.data.repository.PagingAndSortingRepository
  * Date: 12/30/2014
  * Time: 3:42 PM
  *
- * TODO - caching?
+ * Currently choosing to not cache
+ * The spring libraries themselves do some in-memory caching and the
+ * spring session layer shares sessions across cluster
  *
  */
 @NoRepositoryBean
