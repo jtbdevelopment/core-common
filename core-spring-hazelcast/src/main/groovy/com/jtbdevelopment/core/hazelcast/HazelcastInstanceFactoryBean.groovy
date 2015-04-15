@@ -6,6 +6,7 @@ import com.hazelcast.core.HazelcastInstance
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.FactoryBean
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.Lifecycle
 import org.springframework.stereotype.Component
 
 import javax.annotation.PostConstruct
@@ -16,7 +17,7 @@ import javax.annotation.PostConstruct
  */
 @Component
 @CompileStatic
-class HazelcastInstanceFactoryBean implements FactoryBean<HazelcastInstance> {
+class HazelcastInstanceFactoryBean implements FactoryBean<HazelcastInstance>, Lifecycle {
 
     private HazelcastInstance instance
 
@@ -43,5 +44,20 @@ class HazelcastInstanceFactoryBean implements FactoryBean<HazelcastInstance> {
     @Override
     boolean isSingleton() {
         return true
+    }
+
+    @Override
+    void start() {
+    }
+
+    @Override
+    void stop() {
+        Hazelcast.shutdownAll()
+        instance = null
+    }
+
+    @Override
+    boolean isRunning() {
+        return instance != null
     }
 }

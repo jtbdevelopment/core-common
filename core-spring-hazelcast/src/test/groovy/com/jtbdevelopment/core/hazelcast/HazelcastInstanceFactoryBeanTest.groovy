@@ -21,9 +21,11 @@ class HazelcastInstanceFactoryBeanTest extends GroovyTestCase {
     }
 
     void testGetObjectIsSame() {
+        assertFalse factoryBean.isRunning()
         factoryBean.setup()
+        assert factoryBean.isRunning()
         assert factoryBean.object.is(factoryBean.object)
-        factoryBean.object.shutdown()
+        factoryBean.stop()
     }
 
     void testSetupCallsConfigurers() {

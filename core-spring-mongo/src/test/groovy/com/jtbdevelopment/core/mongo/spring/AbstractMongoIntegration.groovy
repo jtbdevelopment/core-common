@@ -35,10 +35,9 @@ abstract class AbstractMongoIntegration {
 
         MongodStarter starter = MongodStarter.getDefaultInstance();
 
-        int port = DB_PORT;
         IMongodConfig mongodConfig = new MongodConfigBuilder()
                 .version(Version.Main.PRODUCTION)
-                .net(new Net(port, Network.localhostIsIPv6()))
+                .net(new Net(DB_PORT, Network.localhostIsIPv6()))
                 .build();
 
         mongodExecutable = starter.prepare(mongodConfig);

@@ -3,6 +3,7 @@ package com.jtbdevelopment.core.spring.quartz
 import groovy.transform.CompileStatic
 import org.quartz.Trigger
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.scheduling.SchedulingException
 import org.springframework.scheduling.quartz.CronTriggerFactoryBean
 import org.springframework.scheduling.quartz.SchedulerFactoryBean
 import org.springframework.stereotype.Component
@@ -23,5 +24,11 @@ class AutowiredSchedulerFactoryBean extends SchedulerFactoryBean {
     void setup() {
         List<? extends Trigger> triggers = cronTriggerFactoryBeans.collect { it.object }
         super.setTriggers(triggers.toArray(new Trigger[triggers.size()]))
+    }
+
+    @Override
+    void stop() throws SchedulingException {
+        super.stop()
+        scheduler?.shutdown()
     }
 }
