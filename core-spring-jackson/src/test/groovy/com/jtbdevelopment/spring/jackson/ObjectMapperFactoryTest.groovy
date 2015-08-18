@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import org.springframework.beans.factory.FactoryBeanNotInitializedException
 
 import javax.annotation.PostConstruct
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 /**
  * Date: 1/13/15
@@ -44,10 +46,22 @@ class ObjectMapperFactoryTest extends GroovyTestCase {
 
         ObjectMapper mapper = objectMapperFactory.object
         assert mapper
-        assert mapper.writeValueAsString(new SerializeData()) == '{"intValue":"INTEGER","decimalValue":"BIGDECIMAL"}'
+        assert '{"intValue":"INTEGER","decimalValue":"BIGDECIMAL"}' == mapper.writeValueAsString(new SerializeData())
         DeserializeData out = mapper.readValue('{"intValue":"35"}', DeserializeData.class)
         assert out
-        assert out.intValue == 5
+        assert 5 == out.intValue
+
+    }
+
+    void testJSR310Registration() {
+        objectMapperFactory = new ObjectMapperFactory()
+        objectMapperFactory.initializeMapper()
+        ObjectMapper mapper = objectMapperFactory.object
+        assert mapper
+
+        ZonedDateTimeContainer container = new ZonedDateTimeContainer();
+        assert '{"aDate":1352946820.000000304}' == mapper.writeValueAsString(container)
+        assert container.aDate == mapper.readValue('{"aDate":1352946820.000000304}', ZonedDateTimeContainer.class).aDate
     }
 
     //  Primary test is that null values don't explode
@@ -133,6 +147,10 @@ class ObjectMapperFactoryTest extends GroovyTestCase {
                 final JsonParser jp, final DeserializationContext ctxt) throws IOException, JsonProcessingException {
             return new Integer(5)
         }
+    }
+
+    private static class ZonedDateTimeContainer {
+        public ZonedDateTime aDate = ZonedDateTime.of(2012, 11, 15, 2, 33, 40, 304, ZoneId.of("GMT"))
     }
 
     private static class SerializeData {
