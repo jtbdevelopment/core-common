@@ -16,7 +16,7 @@
     <orderEntry type="library" name="Maven: org.springframework:spring-tx:4.1.6.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.quartz-scheduler:quartz:2.2.1" level="project" />
     <orderEntry type="library" name="Maven: c3p0:c3p0:0.9.1.1" level="project" />
-    <orderEntry type="library" name="Maven: org.codehaus.groovy:groovy-all:2.4.3" level="project" />
+    <orderEntry type="library" name="Maven: org.codehaus.groovy:groovy-all:2.4.4" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.gpars:gpars:1.2.1" level="project" />
     <orderEntry type="library" name="Maven: org.multiverse:multiverse-core:0.7.0" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.jsr166-mirror:jsr166y:1.7.0" level="project" />
