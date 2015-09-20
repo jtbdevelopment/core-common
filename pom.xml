@@ -19,8 +19,8 @@
     </modules>
 
     <properties>
-        <spring.data.mongodb.version>1.7.0.RELEASE</spring.data.mongodb.version>
-        <spring.data.common.version>1.10.2.RELEASE</spring.data.common.version>
+        <spring.data.mongodb.version>1.8.0.RELEASE</spring.data.mongodb.version>
+        <spring.data.common.version>1.11.0.RELEASE</spring.data.common.version>
         <spring.security.version>4.0.2.RELEASE</spring.security.version>
         <spring.social.version>1.1.2.RELEASE</spring.social.version>
         <spring.session.version>1.0.2.RELEASE</spring.session.version>
