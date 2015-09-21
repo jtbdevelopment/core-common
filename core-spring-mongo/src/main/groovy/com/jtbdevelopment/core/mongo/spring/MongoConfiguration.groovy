@@ -3,12 +3,13 @@ package com.jtbdevelopment.core.mongo.spring
 import com.jtbdevelopment.core.mongo.spring.converters.MongoConverter
 import com.mongodb.Mongo
 import com.mongodb.MongoClient
+import com.mongodb.MongoCredential
+import com.mongodb.ServerAddress
 import groovy.transform.CompileStatic
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration
-import org.springframework.data.authentication.UserCredentials
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration
 import org.springframework.data.mongodb.config.EnableMongoAuditing
 import org.springframework.data.mongodb.core.convert.CustomConversions
@@ -47,18 +48,17 @@ class MongoConfiguration extends AbstractMongoConfiguration {
         return mongoProperties.dbName
     }
 
-    @Override
-    protected UserCredentials getUserCredentials() {
-        if (StringUtils.isEmpty(mongoProperties.dbPassword) || StringUtils.isEmpty(mongoProperties.dbUser)) {
-            return null;
-        }
-        return new UserCredentials(mongoProperties.dbUser, mongoProperties.dbPassword)
-    }
-
     //  Not unit testable
     @Override
     Mongo mongo() throws Exception {
-        MongoClient mongo = new MongoClient(mongoProperties.dbHost, mongoProperties.dbPort);
+        MongoClient mongo
+        if (!StringUtils.isEmpty(mongoProperties.dbPassword) && !StringUtils.isEmpty(mongoProperties.dbUser)) {
+            mongo = new MongoClient(
+                    [new ServerAddress(mongoProperties.dbHost, mongoProperties.dbPort)],
+                    [MongoCredential.createCredential(mongoProperties.dbUser, mongoProperties.dbName, mongoProperties.dbPassword.toCharArray())]);
+        } else {
+            mongo = new MongoClient(mongoProperties.dbHost, mongoProperties.dbPort);
+        }
         try {
             mongo.setWriteConcern(mongoProperties.dbWriteConcern)
         } catch (Exception e) {

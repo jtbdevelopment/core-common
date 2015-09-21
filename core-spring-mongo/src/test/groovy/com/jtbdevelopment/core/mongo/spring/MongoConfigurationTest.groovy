@@ -3,7 +3,6 @@ package com.jtbdevelopment.core.mongo.spring
 import com.jtbdevelopment.core.mongo.spring.converters.MongoConverter
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.convert.support.GenericConversionService
-import org.springframework.data.authentication.UserCredentials
 import org.springframework.data.mongodb.config.EnableMongoAuditing
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories
 
@@ -55,35 +54,5 @@ class MongoConfigurationTest extends GroovyTestCase {
         configuration.mongoProperties = p
 
         assert p.dbName == configuration.databaseName
-    }
-
-    void testGetUserCredentialsBlanksOrNullsIsNull() {
-        MongoProperties p = new MongoProperties()
-        configuration.mongoProperties = p
-
-        assertNull configuration.userCredentials
-
-        p.dbPassword = 'X'
-        assertNull configuration.userCredentials
-
-        p.dbPassword = ''
-        p.dbUser = 'X'
-        assertNull configuration.userCredentials
-
-        p.dbPassword = ''
-        p.dbUser = ''
-        assertNull configuration.userCredentials
-    }
-
-    void testGetUserCredentialsReturnedWhenSetup() {
-        MongoProperties p = new MongoProperties()
-        configuration.mongoProperties = p
-        p.dbPassword = 'pass'
-        p.dbUser = '123'
-
-        UserCredentials c = configuration.userCredentials
-        assert c
-        assert c.password == p.dbPassword
-        assert c.username == p.dbUser
     }
 }
