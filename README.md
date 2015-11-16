@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/jtbdevelopment/core-common.svg?branch=master)](https://travis-ci.org/jtbdevelopment/core-common)
+
 core-common
 ===========
 
