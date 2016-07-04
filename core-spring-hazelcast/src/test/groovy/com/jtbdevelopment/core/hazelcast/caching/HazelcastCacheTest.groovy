@@ -69,7 +69,7 @@ class HazelcastCacheTest extends GroovyTestCase {
     void testGetWithTypeWithNulls() {
         IMap map = [] as IMap
         HazelcastCache cache = new HazelcastCache(NAME, map)
-        assertNull cache.get(null, null)
+        assertNull cache.get(null, (Class) null)
     }
 
     void testGetWithTypeWithNullKey() {
@@ -82,7 +82,7 @@ class HazelcastCacheTest extends GroovyTestCase {
         Object key = new String('X')
         IMap map = [] as IMap
         HazelcastCache cache = new HazelcastCache(NAME, map)
-        assertNull cache.get(key, null)
+        assertNull cache.get(key, (Class) null)
     }
 
     void testPut() {

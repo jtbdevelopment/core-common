@@ -150,7 +150,7 @@ class ObjectMapperFactoryTest extends GroovyTestCase {
     }
 
     private static class ZonedDateTimeContainer {
-        public ZonedDateTime aDate = ZonedDateTime.of(2012, 11, 15, 2, 33, 40, 304, ZoneId.of("GMT"))
+        public ZonedDateTime aDate = ZonedDateTime.of(2012, 11, 15, 2, 33, 40, 304, ZoneId.of("UTC"))
     }
 
     private static class SerializeData {

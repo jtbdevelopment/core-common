@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.cache.Cache
 import org.springframework.cache.support.SimpleValueWrapper
 
+import java.util.concurrent.Callable
+
 /**
  * Date: 2/26/15
  * Time: 6:42 PM
@@ -77,6 +79,15 @@ class ListHandlingCache implements Cache {
             return (T) (result ? result.toArray() : null)
         }
         return wrapped.get(key, type)
+    }
+
+    //  TODO - test
+    def <T> T get(final Object key, final Callable<T> valueLoader) {
+        Cache.ValueWrapper wrapper = get(key);
+        if (wrapper != null) {
+            return (T) wrapper.get();
+        }
+        return (T) putIfAbsent(key, valueLoader.call()).get();
     }
 
     @Override

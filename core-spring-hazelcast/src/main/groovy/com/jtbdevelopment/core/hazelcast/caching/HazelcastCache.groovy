@@ -5,6 +5,8 @@ import groovy.transform.CompileStatic
 import org.springframework.cache.Cache
 import org.springframework.cache.support.SimpleValueWrapper
 
+import java.util.concurrent.Callable
+
 /**
  * Date: 2/25/15
  * Time: 7:12 AM
@@ -48,6 +50,15 @@ class HazelcastCache implements Cache {
             }
         }
         return null
+    }
+
+    //  TODO - test
+    def <T> T get(final Object key, final Callable<T> valueLoader) {
+        Cache.ValueWrapper wrapper = get(key);
+        if (wrapper != null) {
+            return (T) wrapper.get();
+        }
+        return (T) putIfAbsent(key, valueLoader.call()).get();
     }
 
     @Override
