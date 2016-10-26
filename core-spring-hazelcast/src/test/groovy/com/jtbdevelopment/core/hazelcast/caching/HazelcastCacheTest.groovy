@@ -53,6 +53,7 @@ class HazelcastCacheTest extends GroovyTestCase {
             @Override
             Object call() throws Exception {
                 fail('should not be called')
+                null
             }
         });
         assert existing.is(value)
@@ -294,7 +295,8 @@ class HazelcastCacheTest extends GroovyTestCase {
         assert locked
         assert unlocked
         assertFalse put
-        assert wrapper.get().is(existing)
+        assertNull wrapper
+        assert existing.is(cache.get(key).get())
     }
 
     void testPutIfAbsentWithException() {

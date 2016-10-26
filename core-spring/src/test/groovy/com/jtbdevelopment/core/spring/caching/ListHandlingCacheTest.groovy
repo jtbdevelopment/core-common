@@ -2,6 +2,8 @@ package com.jtbdevelopment.core.spring.caching
 
 import org.springframework.cache.concurrent.ConcurrentMapCache
 
+import java.util.concurrent.Callable
+
 /**
  * Date: 2/27/15
  * Time: 6:47 AM
@@ -9,6 +11,11 @@ import org.springframework.cache.concurrent.ConcurrentMapCache
 class ListHandlingCacheTest extends GroovyTestCase {
     private ConcurrentMapCache localCache = new ConcurrentMapCache('myname')
     ListHandlingCache cache = new ListHandlingCache(localCache)
+
+    @Override
+    void setUp() {
+        cache.clear()
+    }
 
     void testGetName() {
         assert localCache.getName().is(cache.getName())
@@ -45,6 +52,45 @@ class ListHandlingCacheTest extends GroovyTestCase {
         cache.put('2', '1')
         cache.put('4', 10)
         assertNull cache.get(['2', 'junk', '4'].toArray())
+    }
+
+    void testGetWithValueLoaderWhereValueInCache() {
+        Object key = new String('X')
+        Object existing = new String('gone')
+        cache.put(key, existing)
+        def value = cache.get(key, new Callable() {
+            @Override
+            Object call() throws Exception {
+                fail('should not be called')
+            }
+        });
+        assert existing.is(value)
+    }
+
+    void testGetWithValueLoaderWhereValueIsNotInCache() {
+        Object key = new String('X')
+        Object valueLoaded = new String('new')
+        def value = cache.get(key, new Callable() {
+            @Override
+            Object call() throws Exception {
+                return valueLoaded
+            }
+        });
+        assert valueLoaded.is(value)
+    }
+
+    void testGetWithValueLoaderWhereValueIsNotInCacheButPutInBeforeValueLoaderFinishes() {
+        Object key = new String('X')
+        Object racedIn = new String('racer x')
+        Object valueLoaded = new String('new')
+        def value = cache.get(key, new Callable() {
+            @Override
+            Object call() throws Exception {
+                cache.put(key, racedIn)
+                return valueLoaded
+            }
+        });
+        assert racedIn.is(value)
     }
 
     void testGetWithClass() {

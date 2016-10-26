@@ -53,11 +53,12 @@ class HazelcastCache implements Cache {
     }
 
     def <T> T get(final Object key, final Callable<T> valueLoader) {
-        Cache.ValueWrapper wrapper = get(key);
+        Cache.ValueWrapper wrapper = get(key)
         if (wrapper != null) {
             return (T) wrapper.get();
         }
-        return (T) putIfAbsent(key, valueLoader.call()).get();
+        putIfAbsent(key, valueLoader.call())
+        return (T) get(key)?.get()
     }
 
     @Override
@@ -77,7 +78,7 @@ class HazelcastCache implements Cache {
             if (!map.containsKey(key)) {
                 return new SimpleValueWrapper(map.put(key, value))
             } else {
-                return new SimpleValueWrapper(map.get(key))
+                return null
             }
         } finally {
             map.unlock(key)
