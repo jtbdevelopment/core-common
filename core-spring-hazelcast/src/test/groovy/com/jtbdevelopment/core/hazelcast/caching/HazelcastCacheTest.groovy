@@ -3,6 +3,8 @@ package com.jtbdevelopment.core.hazelcast.caching
 import com.hazelcast.core.IMap
 import org.springframework.cache.Cache
 
+import java.util.concurrent.Callable
+
 /**
  * Date: 2/26/15
  * Time: 6:41 AM
@@ -34,6 +36,106 @@ class HazelcastCacheTest extends GroovyTestCase {
         IMap map = [] as IMap
         HazelcastCache cache = new HazelcastCache(NAME, map)
         assertNull cache.get(null)
+    }
+
+    void testGetWithValueLoaderWhereValueInCache() {
+        Object key = new String('X')
+        Object existing = new String('gone')
+        IMap map = [
+                get: {
+                    Object k ->
+                        assert k.is(key)
+                        return existing
+                }
+        ] as IMap
+        HazelcastCache cache = new HazelcastCache(NAME, map)
+        def value = cache.get(key, new Callable() {
+            @Override
+            Object call() throws Exception {
+                fail('should not be called')
+            }
+        });
+        assert existing.is(value)
+    }
+
+    void testGetWithValueLoaderWhereValueIsNotInCache() {
+        Object key = new String('X')
+        Object valueLoaded = new String('new')
+        Object valueInCache = null
+        IMap map = [
+                get        : {
+                    Object k ->
+                        assert k.is(key)
+                        return valueInCache
+                },
+                put        : {
+                    Object k, Object v ->
+                        assert k.is(key)
+                        valueInCache = v
+                },
+                lock       : {
+                    Object k ->
+                        assert k.is(key)
+                },
+                unlock     : {
+                    Object k ->
+                        assert k.is(key)
+                },
+                containsKey: {
+                    Object k ->
+                        assert k.is(key)
+                        return valueInCache != null
+                }
+        ] as IMap
+        HazelcastCache cache = new HazelcastCache(NAME, map)
+        def value = cache.get(key, new Callable() {
+            @Override
+            Object call() throws Exception {
+                return valueLoaded
+            }
+        });
+        assert valueLoaded.is(value)
+    }
+
+    void testGetWithValueLoaderWhereValueIsNotInCacheButPutInBeforeValueLoaderFinishes() {
+        Object key = new String('X')
+        Object racedIn = new String('racer x')
+        Object valueLoaded = new String('new')
+        Object valueInCache = null
+        IMap map = [
+                get        : {
+                    Object k ->
+                        assert k.is(key)
+                        return valueInCache
+                },
+                put        : {
+                    Object k, Object v ->
+                        assert k.is(key)
+                        valueInCache = v
+                },
+                lock       : {
+                    Object k ->
+                        assert k.is(key)
+                },
+                unlock     : {
+                    Object k ->
+                        assert k.is(key)
+                },
+                containsKey: {
+                    Object k ->
+                        assert k.is(key)
+                        return valueInCache != null
+                }
+        ] as IMap
+        HazelcastCache cache = new HazelcastCache(NAME, map)
+        def value = cache.get(key, new Callable() {
+            @Override
+            Object call() throws Exception {
+                cache.put(key, racedIn)
+                return valueLoaded
+            }
+        });
+        assert racedIn.is(value)
     }
 
     void testGetWithType() {

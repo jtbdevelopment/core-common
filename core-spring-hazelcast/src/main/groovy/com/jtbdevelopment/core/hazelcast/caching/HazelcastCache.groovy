@@ -52,7 +52,6 @@ class HazelcastCache implements Cache {
         return null
     }
 
-    //  TODO - test
     def <T> T get(final Object key, final Callable<T> valueLoader) {
         Cache.ValueWrapper wrapper = get(key);
         if (wrapper != null) {
