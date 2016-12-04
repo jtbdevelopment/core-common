@@ -22,15 +22,15 @@ abstract class AbstractUsersConnectionRepository implements UsersConnectionRepos
     ConnectionSignUp connectionSignUp
 
     @Autowired
-    ConnectionFactoryLocator connectionFactoryLocator;
+    ConnectionFactoryLocator connectionFactoryLocator
 
     @Autowired
     TextEncryptor textEncryptor
 
     @PostConstruct
-    public void setUp() {
+    void setUp() {
         AbstractConnectionRepository.socialConnectionRepository = socialConnectionRepository
-        AbstractConnectionRepository.connectionFactoryLocator = connectionFactoryLocator;
+        AbstractConnectionRepository.connectionFactoryLocator = connectionFactoryLocator
         AbstractConnectionRepository.encryptor = textEncryptor
         AbstractConnectionRepository.providerConnectionFactoryMap = connectionFactoryLocator.registeredProviderIds().collectEntries {
             String providerId ->
@@ -40,21 +40,21 @@ abstract class AbstractUsersConnectionRepository implements UsersConnectionRepos
 
     @Override
     List<String> findUserIdsWithConnection(final Connection<?> connection) {
-        ConnectionKey key = connection.getKey();
-        List<SocialConnection> connections = socialConnectionRepository.findByProviderIdAndProviderUserId(key.getProviderId(), key.getProviderUserId());
+        ConnectionKey key = connection.getKey()
+        List<SocialConnection> connections = socialConnectionRepository.findByProviderIdAndProviderUserId(key.getProviderId(), key.getProviderUserId())
         if (connections.size() == 0 && connectionSignUp != null) {
-            String newUserId = connectionSignUp.execute(connection);
+            String newUserId = connectionSignUp.execute(connection)
             if (newUserId != null) {
-                createConnectionRepository(newUserId).addConnection(connection);
-                return Arrays.asList(newUserId);
+                createConnectionRepository(newUserId).addConnection(connection)
+                return Arrays.asList(newUserId)
             }
         }
-        return connections.collect { SocialConnection it -> it.userId };
+        return connections.collect { SocialConnection it -> it.userId }
     }
 
     @Override
     Set<String> findUserIdsConnectedTo(final String providerId, final Set<String> providerUserIds) {
         List<SocialConnection> connections = socialConnectionRepository.findByProviderIdAndProviderUserIdIn(providerId, providerUserIds)
-        return connections.collect { SocialConnection it -> it.userId } as Set;
+        return connections.collect { SocialConnection it -> it.userId } as Set
     }
 }

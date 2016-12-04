@@ -16,8 +16,8 @@ class MongoUsersConnectionRepository extends AbstractUsersConnectionRepository {
     @Override
     ConnectionRepository createConnectionRepository(final String userId) {
         if (StringUtils.isEmpty(userId)) {
-            throw new IllegalArgumentException("userId cannot be null");
+            throw new IllegalArgumentException("userId cannot be null")
         }
-        return new MongoConnectionRepository(userId);
+        return new MongoConnectionRepository(userId)
     }
 }
