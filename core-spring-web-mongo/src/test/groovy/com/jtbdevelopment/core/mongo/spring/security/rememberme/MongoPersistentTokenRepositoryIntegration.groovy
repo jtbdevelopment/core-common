@@ -1,6 +1,6 @@
 package com.jtbdevelopment.core.mongo.spring.security.rememberme
 
-import com.jtbdevelopment.core.mongo.spring.AbstractMongoIntegration
+import com.jtbdevelopment.core.mongo.spring.AbstractMongoDefaultSpringContextIntegration
 import com.mongodb.*
 import org.junit.Before
 import org.junit.Test
@@ -13,7 +13,7 @@ import org.springframework.security.web.authentication.rememberme.PersistentReme
  * Loosely based on spring's own JdbcTokenRepositoryImplTests
  *
  */
-class MongoPersistentTokenRepositoryIntegration extends AbstractMongoIntegration {
+class MongoPersistentTokenRepositoryIntegration extends AbstractMongoDefaultSpringContextIntegration {
 
     public static final String USER_COLUMN = 'username'
     public static final String SERIES_COLUMN = 'series'

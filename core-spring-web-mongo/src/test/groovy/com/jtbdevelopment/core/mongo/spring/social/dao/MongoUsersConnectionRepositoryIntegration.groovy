@@ -1,7 +1,7 @@
 package com.jtbdevelopment.core.mongo.spring.social.dao
 
-import com.jtbdevelopment.core.mongo.spring.AbstractMongoIntegration
-import com.jtbdevelopment.core.mongo.spring.MongoConfiguration
+import com.jtbdevelopment.core.mongo.spring.AbstractCoreMongoConfiguration
+import com.jtbdevelopment.core.mongo.spring.AbstractMongoDefaultSpringContextIntegration
 import com.jtbdevelopment.core.mongo.spring.converters.StringToZonedDateTimeConverter
 import com.jtbdevelopment.core.mongo.spring.converters.ZonedDateTimeToStringConverter
 import com.jtbdevelopment.core.spring.social.dao.AbstractUsersConnectionRepository
@@ -27,10 +27,10 @@ import java.time.ZonedDateTime
  *
  * Significantly derived from spring's JdbcUsersConnectionRepositoryTest
  */
-class MongoUsersConnectionRepositoryIntegration extends AbstractMongoIntegration {
+class MongoUsersConnectionRepositoryIntegration extends AbstractMongoDefaultSpringContextIntegration {
     @SuppressWarnings("GroovyUnusedDeclaration")
     @Configuration
-    private static class IntegrationSocialConfiguration extends MongoConfiguration {
+    private static class IntegrationSocialConfiguration extends AbstractCoreMongoConfiguration {
         @Bean
         @Autowired
         ConnectionFactoryRegistry connectionFactoryLocator() {

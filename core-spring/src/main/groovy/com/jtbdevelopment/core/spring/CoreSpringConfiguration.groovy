@@ -12,9 +12,9 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer
 @CompileStatic
 class CoreSpringConfiguration {
     @Bean
-    public PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer() {
+    PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer() {
         def configurer = new PropertySourcesPlaceholderConfigurer()
-        configurer.ignoreResourceNotFound = true;
+        configurer.ignoreResourceNotFound = true
         return configurer
     }
 }

@@ -15,8 +15,8 @@ import org.springframework.data.repository.NoRepositoryBean
 @CompileStatic
 @NoRepositoryBean
 interface AbstractRememberMeTokenRepository<ID extends Serializable, T extends AbstractRememberMeToken<ID>> extends CrudRepository<T, ID> {
-    T findBySeries(final String series);
+    T findBySeries(final String series)
 
-    List<T> findByUsername(final String username);
+    List<T> findByUsername(final String username)
 }
 
