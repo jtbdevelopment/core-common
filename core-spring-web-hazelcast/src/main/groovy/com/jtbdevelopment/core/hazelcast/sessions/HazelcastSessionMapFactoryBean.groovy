@@ -14,6 +14,8 @@ import javax.annotation.PostConstruct
 /**
  * Date: 3/6/15
  * Time: 6:34 PM
+ *
+ * TODO - possibly unnecessary in spring session 1.3
  */
 @Component
 @CompileStatic
