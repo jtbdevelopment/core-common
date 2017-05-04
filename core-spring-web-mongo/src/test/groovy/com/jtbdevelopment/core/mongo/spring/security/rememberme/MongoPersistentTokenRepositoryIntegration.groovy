@@ -15,11 +15,11 @@ import org.springframework.security.web.authentication.rememberme.PersistentReme
  */
 class MongoPersistentTokenRepositoryIntegration extends AbstractMongoDefaultSpringContextIntegration {
 
-    public static final String USER_COLUMN = 'username'
-    public static final String SERIES_COLUMN = 'series'
-    public static final String TOKEN_COLUMN = 'tokenValue'
-    public static final String DATE_COLUMN = 'date'
-    public static final String TOKEN_COLLECTION_NAME = 'rememberMeToken'
+    static final String USER_COLUMN = 'username'
+    static final String SERIES_COLUMN = 'series'
+    static final String TOKEN_COLUMN = 'tokenValue'
+    static final String DATE_COLUMN = 'date'
+    static final String TOKEN_COLLECTION_NAME = 'rememberMeToken'
 
     protected static MongoPersistentTokenRepository repository
     private DBCollection collection
@@ -32,7 +32,7 @@ class MongoPersistentTokenRepositoryIntegration extends AbstractMongoDefaultSpri
     }
 
     @Test
-    public void testCollectionConfiguration() {
+    void testCollectionConfiguration() {
         List<DBObject> indices = collection.indexInfo
         boolean seriesIndexFound = false
         indices.each {
@@ -44,7 +44,7 @@ class MongoPersistentTokenRepositoryIntegration extends AbstractMongoDefaultSpri
                         BasicDBObject key = it.get('key') as BasicDBObject
                         assert key.size() == 1
                         assert key.get(SERIES_COLUMN) == 1
-                        break;
+                        break
                 }
         }
         assert seriesIndexFound
@@ -75,7 +75,7 @@ class MongoPersistentTokenRepositoryIntegration extends AbstractMongoDefaultSpri
                 add(DATE_COLUMN, date).
                 get())
 
-        def loaded = repository.getTokenForSeries(series);
+        def loaded = repository.getTokenForSeries(series)
 
         assert loaded.id
         assert date == loaded.date
@@ -85,7 +85,7 @@ class MongoPersistentTokenRepositoryIntegration extends AbstractMongoDefaultSpri
     }
 
     @Test
-    public void testRemovingUserTokensDeletesData() {
+    void testRemovingUserTokensDeletesData() {
         def date = new Date()
         def user = 'deleteuser'
 
@@ -106,12 +106,12 @@ class MongoPersistentTokenRepositoryIntegration extends AbstractMongoDefaultSpri
         def query = new QueryBuilder().start(USER_COLUMN).is(user).get()
         assert collection.count(query) == 2
 
-        repository.removeUserTokens(user);
+        repository.removeUserTokens(user)
         assert collection.count(query) == 0
     }
 
     @Test
-    public void testUpdatingTokenModifiesTokenValueAndLastUsed() {
+    void testUpdatingTokenModifiesTokenValueAndLastUsed() {
         def date = new Date(0)
         def user = 'updateUser'
         def series = 'updateSeries'
@@ -133,7 +133,7 @@ class MongoPersistentTokenRepositoryIntegration extends AbstractMongoDefaultSpri
     }
 
     @Test
-    public void testUpdatingTokenWithNoSeries() {
+    void testUpdatingTokenWithNoSeries() {
         def series = 'updateSeries'
         def newValue = 'updateValue2'
         def newDate = new Date()
