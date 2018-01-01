@@ -3,7 +3,7 @@
     <parent>
         <artifactId>core-common</artifactId>
         <groupId>com.jtbdevelopment.core-common</groupId>
-        <version>1.9-SNAPSHOT</version>
+        <version>1.9</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -13,12 +13,12 @@
         <dependency>
             <groupId>com.jtbdevelopment.core-common</groupId>
             <artifactId>core-spring-web</artifactId>
-            <version>1.9-SNAPSHOT</version>
+            <version>1.9</version>
         </dependency>
         <dependency>
             <groupId>com.jtbdevelopment.core-common</groupId>
             <artifactId>core-spring-mongo</artifactId>
-            <version>1.9-SNAPSHOT</version>
+            <version>1.9</version>
         </dependency>
 
         <dependency>
@@ -30,14 +30,14 @@
         <dependency>
             <groupId>com.jtbdevelopment.core-common</groupId>
             <artifactId>core-spring-mongo</artifactId>
-            <version>1.9-SNAPSHOT</version>
+            <version>1.9</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.jtbdevelopment.core-common</groupId>
             <artifactId>core-spring-web</artifactId>
-            <version>1.9-SNAPSHOT</version>
+            <version>1.9</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
