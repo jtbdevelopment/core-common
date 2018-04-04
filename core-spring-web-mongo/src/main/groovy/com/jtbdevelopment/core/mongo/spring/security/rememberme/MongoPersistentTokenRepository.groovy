@@ -1,6 +1,7 @@
 package com.jtbdevelopment.core.mongo.spring.security.rememberme
 
 import com.jtbdevelopment.core.spring.security.rememberme.AbstractPersistentTokenRepository
+import com.jtbdevelopment.core.spring.security.rememberme.AbstractRememberMeTokenRepository
 import groovy.transform.CompileStatic
 import org.bson.types.ObjectId
 import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken
@@ -13,6 +14,10 @@ import org.springframework.stereotype.Component
 @CompileStatic
 @Component
 class MongoPersistentTokenRepository extends AbstractPersistentTokenRepository<ObjectId, MongoRememberMeToken> {
+    MongoPersistentTokenRepository(AbstractRememberMeTokenRepository<ObjectId, MongoRememberMeToken> rememberMeTokenRepository) {
+        super(rememberMeTokenRepository)
+    }
+
     @Override
     protected MongoRememberMeToken newToken(final PersistentRememberMeToken source) {
         return new MongoRememberMeToken(source)

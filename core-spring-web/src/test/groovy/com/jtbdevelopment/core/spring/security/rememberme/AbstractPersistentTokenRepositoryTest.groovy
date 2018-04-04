@@ -23,6 +23,10 @@ class AbstractPersistentTokenRepositoryTest extends GroovyTestCase {
 
     private
     static class TestPersistentTokenRepository extends AbstractPersistentTokenRepository<String, TestPersistentToken> {
+        TestPersistentTokenRepository(AbstractRememberMeTokenRepository<String, TestPersistentToken> rememberMeTokenRepository) {
+            super(rememberMeTokenRepository)
+        }
+
         @Override
         TestPersistentToken newToken(final PersistentRememberMeToken source) {
             return newToken(null, source.username, source.series, source.tokenValue, source.date)
@@ -35,16 +39,16 @@ class AbstractPersistentTokenRepositoryTest extends GroovyTestCase {
         }
     }
 
-    protected AbstractPersistentTokenRepository repository;
+    protected AbstractPersistentTokenRepository repository
 
     @Override
     protected void setUp() throws Exception {
-        repository = new TestPersistentTokenRepository()
+        repository = new TestPersistentTokenRepository(null)
     }
 
-    public void testCreateNewTokenInsertsCorrectData() {
-        Date currentDate = new Date();
-        PersistentRememberMeToken token = new PersistentRememberMeToken("joeuser", "joesseries", "atoken", currentDate);
+    void testCreateNewTokenInsertsCorrectData() {
+        Date currentDate = new Date()
+        PersistentRememberMeToken token = new PersistentRememberMeToken("joeuser", "joesseries", "atoken", currentDate)
 
         boolean saveCalled = false
         repository.rememberMeTokenRepository = [
@@ -63,7 +67,7 @@ class AbstractPersistentTokenRepositoryTest extends GroovyTestCase {
         assert saveCalled
     }
 
-    public void testRetrievingTokenReturnsCorrectData() {
+    void testRetrievingTokenReturnsCorrectData() {
         def series = "joesseries"
         AbstractRememberMeToken token = repository.newToken(new PersistentRememberMeToken("joeuser", series, "atoken", new Date()))
         repository.rememberMeTokenRepository = [
@@ -73,12 +77,12 @@ class AbstractPersistentTokenRepositoryTest extends GroovyTestCase {
                         return token
                 }
         ] as AbstractRememberMeTokenRepository
-        PersistentRememberMeToken loaded = repository.getTokenForSeries(series);
+        PersistentRememberMeToken loaded = repository.getTokenForSeries(series)
 
         assert loaded.is(token)
     }
 
-    public void testRemovingUserTokensDeletesData() {
+    void testRemovingUserTokensDeletesData() {
         AbstractRememberMeToken token1 = repository.newToken(new PersistentRememberMeToken("joeuser", "series1", "atoken1", new Date()))
         AbstractRememberMeToken token2 = repository.newToken(new PersistentRememberMeToken("joeuser", "series2", "atoken2", new Date()))
         boolean t1Deleted = false, t2Deleted = false
@@ -89,28 +93,25 @@ class AbstractPersistentTokenRepositoryTest extends GroovyTestCase {
                         return [token1, token2]
                 },
                 delete        : {
-                    Iterable<AbstractRememberMeToken> it ->
-                        it.each {
-                            AbstractRememberMeToken token ->
-                                assert token.is(token1) || token.is(token2)
-                                if (token.is(token1)) {
-                                    assertFalse t1Deleted
-                                    t1Deleted = true
-                                }
-                                if (token.is(token2)) {
-                                    assertFalse t2Deleted
-                                    t2Deleted = true
-                                }
+                    AbstractRememberMeToken token ->
+                        assert token.is(token1) || token.is(token2)
+                        if (token.is(token1)) {
+                            assertFalse t1Deleted
+                            t1Deleted = true
+                        }
+                        if (token.is(token2)) {
+                            assertFalse t2Deleted
+                            t2Deleted = true
                         }
                 }
 
         ] as AbstractRememberMeTokenRepository
-        repository.removeUserTokens("joeuser");
+        repository.removeUserTokens("joeuser")
         assert t1Deleted
         assert t2Deleted
     }
 
-    public void testUpdatingTokenModifiesTokenValueAndLastUsed() {
+    void testUpdatingTokenModifiesTokenValueAndLastUsed() {
         AbstractRememberMeToken initialToken = repository.newToken(new PersistentRememberMeToken("joeuser", "joesseries", "atoken", new Date()))
 
         def newDate = new Date()
@@ -133,11 +134,11 @@ class AbstractPersistentTokenRepositoryTest extends GroovyTestCase {
                         saveCalled = true
                 }
         ] as AbstractRememberMeTokenRepository
-        repository.updateToken("joesseries", newToken, newDate);
+        repository.updateToken("joesseries", newToken, newDate)
         assert saveCalled
     }
 
-    public void testUpdatingTokenWithNoSeries() {
+    void testUpdatingTokenWithNoSeries() {
         def newDate = new Date()
         def newToken = "newtoken"
         boolean saveCalled = false
@@ -148,7 +149,7 @@ class AbstractPersistentTokenRepositoryTest extends GroovyTestCase {
                         return null
                 }
         ] as AbstractRememberMeTokenRepository
-        repository.updateToken("joesseries", newToken, newDate);
+        repository.updateToken("joesseries", newToken, newDate)
         assertFalse saveCalled
     }
 }

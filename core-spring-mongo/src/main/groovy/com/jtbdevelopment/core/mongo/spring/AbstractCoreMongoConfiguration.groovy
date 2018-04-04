@@ -1,16 +1,15 @@
 package com.jtbdevelopment.core.mongo.spring
 
 import com.jtbdevelopment.core.mongo.spring.converters.MongoConverter
-import com.mongodb.Mongo
 import com.mongodb.MongoClient
+import com.mongodb.MongoClientOptions
 import com.mongodb.MongoCredential
 import com.mongodb.ServerAddress
 import groovy.transform.CompileStatic
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.convert.CustomConversions
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration
-import org.springframework.data.mongodb.core.convert.CustomConversions
+import org.springframework.data.mongodb.core.convert.MongoCustomConversions
 import org.springframework.util.StringUtils
 
 /**
@@ -19,8 +18,6 @@ import org.springframework.util.StringUtils
  */
 @CompileStatic
 class AbstractCoreMongoConfiguration extends AbstractMongoConfiguration {
-    private static final Logger logger = LoggerFactory.getLogger(AbstractCoreMongoConfiguration.class)
-
     @Autowired
     List<MongoConverter> mongoConverters
 
@@ -29,7 +26,7 @@ class AbstractCoreMongoConfiguration extends AbstractMongoConfiguration {
 
     @Override
     CustomConversions customConversions() {
-        return new CustomConversions(mongoConverters)
+        return new MongoCustomConversions(mongoConverters)
     }
 
     @Override
@@ -44,21 +41,18 @@ class AbstractCoreMongoConfiguration extends AbstractMongoConfiguration {
 
     //  Not unit testable
     @Override
-    Mongo mongo() throws Exception {
-        MongoClient mongo
+    MongoClient mongoClient() {
+        MongoClientOptions options = MongoClientOptions.builder().writeConcern(mongoProperties.dbWriteConcern).build()
         if (!StringUtils.isEmpty(mongoProperties.dbPassword) && !StringUtils.isEmpty(mongoProperties.dbUser)) {
-            mongo = new MongoClient(
+            return new MongoClient(
                     [new ServerAddress(mongoProperties.dbHost, mongoProperties.dbPort)],
-                    [MongoCredential.createCredential(mongoProperties.dbUser, mongoProperties.dbName, mongoProperties.dbPassword.toCharArray())]);
+                    [MongoCredential.createCredential(mongoProperties.dbUser, mongoProperties.dbName, mongoProperties.dbPassword.toCharArray())],
+                    options
+            )
         } else {
-            mongo = new MongoClient(mongoProperties.dbHost, mongoProperties.dbPort);
+            return new MongoClient([new ServerAddress(mongoProperties.dbHost, mongoProperties.dbPort)], options)
         }
-        try {
-            mongo.setWriteConcern(mongoProperties.dbWriteConcern)
-        } catch (Exception e) {
-            logger.warn("Unable to set Write Concern of " + mongoProperties.dbWriteConcern, e)
-        }
-        return mongo
     }
+
 
 }
