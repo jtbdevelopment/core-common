@@ -1,7 +1,7 @@
 package com.jtbdevelopment.core.mongo.spring
 
-import com.mongodb.DB
 import com.mongodb.MongoClient
+import com.mongodb.client.MongoDatabase
 import de.flapdoodle.embed.mongo.MongodExecutable
 import de.flapdoodle.embed.mongo.MongodStarter
 import de.flapdoodle.embed.mongo.config.IMongodConfig
@@ -20,7 +20,7 @@ abstract class AbstractMongoNoSpringContextIntegration {
 
     protected static MongodExecutable mongodExecutable = null
     protected static MongoClient mongoClient
-    protected static DB db
+    protected static MongoDatabase db
 
 
     static void setupMongo() throws Exception {
@@ -40,7 +40,7 @@ abstract class AbstractMongoNoSpringContextIntegration {
         System.setProperty('mongo.dbName', DB_NAME)
         System.setProperty('mongo.writeConcern', 'ACKNOWLEDGED')
         mongoClient = new MongoClient("localhost", DB_PORT)
-        db = mongoClient.getDB(DB_NAME)
+        db = mongoClient.getDatabase(DB_NAME)
     }
 
     static void tearDownMongo() throws Exception {

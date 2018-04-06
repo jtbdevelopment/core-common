@@ -1,10 +1,16 @@
 package com.jtbdevelopment.core.mongo.spring.security.rememberme
 
 import com.jtbdevelopment.core.mongo.spring.AbstractMongoDefaultSpringContextIntegration
-import com.mongodb.*
+import com.mongodb.BasicDBObject
+import com.mongodb.client.MongoCollection
+import com.mongodb.client.model.Filters
+import org.bson.Document
+import org.bson.conversions.Bson
 import org.junit.Before
 import org.junit.Test
 import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken
+
+import java.util.function.Consumer
 
 /**
  * Date: 1/3/2015
@@ -22,21 +28,20 @@ class MongoPersistentTokenRepositoryIntegration extends AbstractMongoDefaultSpri
     static final String TOKEN_COLLECTION_NAME = 'rememberMeToken'
 
     protected static MongoPersistentTokenRepository repository
-    private DBCollection collection
+    private MongoCollection collection
 
     @Before
     void setup() {
         repository = context.getBean(MongoPersistentTokenRepository.class)
-        assert db.collectionExists(TOKEN_COLLECTION_NAME)
         collection = db.getCollection(TOKEN_COLLECTION_NAME)
     }
 
     @Test
     void testCollectionConfiguration() {
-        List<DBObject> indices = collection.indexInfo
         boolean seriesIndexFound = false
-        indices.each {
-            DBObject it ->
+        collection.listIndexes().forEach(new Consumer<Document>() {
+            @Override
+            void accept(Document it) {
                 switch (it.get('name')) {
                     case SERIES_COLUMN:
                         seriesIndexFound = true
@@ -46,17 +51,18 @@ class MongoPersistentTokenRepositoryIntegration extends AbstractMongoDefaultSpri
                         assert key.get(SERIES_COLUMN) == 1
                         break
                 }
-        }
+            }
+        })
         assert seriesIndexFound
     }
 
     @Test
     void testNewSeries() {
-        DBCollection collection = db.getCollection(TOKEN_COLLECTION_NAME)
+        MongoCollection collection = db.getCollection(TOKEN_COLLECTION_NAME)
         PersistentRememberMeToken token = new PersistentRememberMeToken('newuser', 'newSeries', 'newToken', new Date())
         repository.createNewToken(token)
 
-        DBObject result = collection.findOne(queryBySeries(token.series))
+        Document result = collection.find(queryBySeries(token.series)).first()
         assert result.get('_id')
         compareTokenToMongo(result, token)
     }
@@ -68,12 +74,11 @@ class MongoPersistentTokenRepositoryIntegration extends AbstractMongoDefaultSpri
         def series = 'findseries'
         def value = 'findValue'
 
-        collection.insert(BasicDBObjectBuilder.start().
-                add(USER_COLUMN, user).
-                add(SERIES_COLUMN, series).
-                add(TOKEN_COLUMN, value).
-                add(DATE_COLUMN, date).
-                get())
+        collection.insertOne(new Document().
+                append(USER_COLUMN, user).
+                append(SERIES_COLUMN, series).
+                append(TOKEN_COLUMN, value).
+                append(DATE_COLUMN, date))
 
         def loaded = repository.getTokenForSeries(series)
 
@@ -89,21 +94,19 @@ class MongoPersistentTokenRepositoryIntegration extends AbstractMongoDefaultSpri
         def date = new Date()
         def user = 'deleteuser'
 
-        DBCollection collection = db.getCollection(TOKEN_COLLECTION_NAME)
-        collection.insert(BasicDBObjectBuilder.start().
-                add(USER_COLUMN, user).
-                add(SERIES_COLUMN, 'deleteSeries1').
-                add(TOKEN_COLUMN, 'deleteValue1').
-                add(DATE_COLUMN, date).
-                get())
-        collection.insert(BasicDBObjectBuilder.start().
-                add(USER_COLUMN, user).
-                add(SERIES_COLUMN, 'deleteSeries2').
-                add(TOKEN_COLUMN, 'deleteValue2').
-                add(DATE_COLUMN, date).
-                get())
+        MongoCollection collection = db.getCollection(TOKEN_COLLECTION_NAME)
+        collection.insertOne(new Document().
+                append(USER_COLUMN, user).
+                append(SERIES_COLUMN, 'deleteSeries1').
+                append(TOKEN_COLUMN, 'deleteValue1').
+                append(DATE_COLUMN, date))
+        collection.insertOne(new Document().
+                append(USER_COLUMN, user).
+                append(SERIES_COLUMN, 'deleteSeries2').
+                append(TOKEN_COLUMN, 'deleteValue2').
+                append(DATE_COLUMN, date))
 
-        def query = new QueryBuilder().start(USER_COLUMN).is(user).get()
+        def query = Filters.eq(USER_COLUMN, user)
         assert collection.count(query) == 2
 
         repository.removeUserTokens(user)
@@ -123,11 +126,11 @@ class MongoPersistentTokenRepositoryIntegration extends AbstractMongoDefaultSpri
         PersistentRememberMeToken updateToken = new PersistentRememberMeToken(user, series, newValue, newDate)
 
         repository.createNewToken(initialToken)
-        DBObject result = collection.findOne(queryBySeries(series))
+        def result = collection.find(queryBySeries(series)).first()
         assert result.get('_id')
         compareTokenToMongo(result, initialToken)
         repository.updateToken(series, newValue, newDate)
-        result = collection.findOne(queryBySeries(series))
+        result = collection.find(queryBySeries(series)).first()
         assert result.get('_id')
         compareTokenToMongo(result, updateToken)
     }
@@ -143,11 +146,11 @@ class MongoPersistentTokenRepositoryIntegration extends AbstractMongoDefaultSpri
         assert collection.count(queryBySeries(series)) == 0
     }
 
-    private static DBObject queryBySeries(String series) {
-        new QueryBuilder().start(SERIES_COLUMN).is(series).get()
+    private static Bson queryBySeries(String series) {
+        Filters.eq(SERIES_COLUMN, series)
     }
 
-    private static void compareTokenToMongo(DBObject result, PersistentRememberMeToken token) {
+    private static void compareTokenToMongo(Document result, PersistentRememberMeToken token) {
         assert result.get(USER_COLUMN).equals(token.username)
         assert result.get(SERIES_COLUMN).equals(token.series)
         assert result.get(TOKEN_COLUMN).equals(token.tokenValue)
