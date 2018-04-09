@@ -13,7 +13,7 @@ class SessionConfigTest extends GroovyTestCase {
     SessionConfig sessionConfig = new SessionConfig()
 
     void testGetSpringSessionRepositoryFilter() {
-        def repository = [] as MapSessionRepository
+        def repository = [:] as MapSessionRepository
         sessionConfig.mapSessionRepository = repository
         SessionRepositoryFilter filter = sessionConfig.getSpringSessionRepositoryFilter()
         Field field = SessionRepositoryFilter.class.getDeclaredField('sessionRepository')

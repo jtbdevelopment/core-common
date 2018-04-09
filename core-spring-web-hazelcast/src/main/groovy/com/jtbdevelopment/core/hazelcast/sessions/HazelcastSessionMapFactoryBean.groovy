@@ -5,8 +5,8 @@ import com.hazelcast.core.IMap
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.FactoryBean
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.session.ExpiringSession
 import org.springframework.session.MapSessionRepository
+import org.springframework.session.Session
 import org.springframework.stereotype.Component
 
 import javax.annotation.PostConstruct
@@ -15,7 +15,8 @@ import javax.annotation.PostConstruct
  * Date: 3/6/15
  * Time: 6:34 PM
  *
- * TODO - possibly unnecessary in spring session 1.3
+ * TODO - possibly unnecessary in current spring session
+ *
  */
 @Component
 @CompileStatic
@@ -28,7 +29,7 @@ class HazelcastSessionMapFactoryBean implements FactoryBean<MapSessionRepository
 
     @PostConstruct
     void setup() {
-        IMap<String, ExpiringSession> map = hazelcastInstance.getMap(MAP_NAME)
+        IMap<String, Session> map = hazelcastInstance.getMap(MAP_NAME)
         mapSessionRepository = new MapSessionRepository(map)
     }
 
