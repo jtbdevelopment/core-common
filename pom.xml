@@ -22,7 +22,7 @@
         <spring.data.mongodb.version>2.0.5.RELEASE</spring.data.mongodb.version>
         <spring.data.common.version>2.0.5.RELEASE</spring.data.common.version>
         <spring.security.version>4.2.1.RELEASE</spring.security.version>
-        <spring.social.version>1.1.4.RELEASE</spring.social.version>
+        <spring.social.version>1.1.6.RELEASE</spring.social.version>
         <spring.session.version>2.0.2.RELEASE</spring.session.version>
         <spring.version>5.0.5.RELEASE</spring.version>
         <jackson.version>2.9.5</jackson.version>
