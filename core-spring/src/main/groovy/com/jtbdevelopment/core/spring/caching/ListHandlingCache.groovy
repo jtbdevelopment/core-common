@@ -26,7 +26,7 @@ class ListHandlingCache implements Cache {
 
     private final Cache wrapped
 
-    public ListHandlingCache(final Cache wrapped) {
+    ListHandlingCache(final Cache wrapped) {
         this.wrapped = wrapped
     }
 
@@ -58,7 +58,7 @@ class ListHandlingCache implements Cache {
     @Override
     Cache.ValueWrapper get(final Object key) {
         if (key instanceof Iterable) {
-            List<Object> result = getKeys(key)
+            List<Object> result = getKeys((Iterable) key)
             return result ? new SimpleValueWrapper(result) : null
         }
         if (key instanceof Object[]) {
@@ -69,9 +69,9 @@ class ListHandlingCache implements Cache {
     }
 
     @Override
-    def <T> T get(final Object key, final Class<T> type) {
+    <T> T get(final Object key, final Class<T> type) {
         if (key instanceof Iterable) {
-            List<Object> result = getKeys(key, type)
+            List<Object> result = getKeys((Iterable) key, type)
             return (T) (result ? result : null)
         }
         if (key instanceof Object[]) {
@@ -85,7 +85,7 @@ class ListHandlingCache implements Cache {
     def <T> T get(final Object key, final Callable<T> valueLoader) {
         Cache.ValueWrapper wrapper = get(key)
         if (wrapper != null) {
-            return (T) wrapper.get();
+            return (T) wrapper.get()
         }
         putIfAbsent(key, valueLoader.call())
         return (T) get(key)?.get()
@@ -94,11 +94,11 @@ class ListHandlingCache implements Cache {
     @Override
     void put(final Object key, final Object value) {
         if (key instanceof Collection && value instanceof Collection) {
-            if (key.size() != value.size()) {
+            if (((Collection) key).size() != ((Collection) value).size()) {
                 logger.warn('Skipping put for mismatch on keys/values ' + key + '/' + value)
                 return
             }
-            putElements(key, value)
+            putElements((Collection) key, (Collection) value)
         } else if (key instanceof Collection && !(value instanceof Collection)) {
             throw new IllegalArgumentException('keys are collection but not values ' + key + '/' + value)
         } else if (key instanceof Object[] && value instanceof Object[]) {
@@ -120,11 +120,11 @@ class ListHandlingCache implements Cache {
     @Override
     Cache.ValueWrapper putIfAbsent(final Object key, final Object value) {
         if (key instanceof Collection && value instanceof Collection) {
-            if (key.size() != value.size()) {
+            if (((Collection) key).size() != ((Collection) value).size()) {
                 logger.warn('Skipping putIfAbsent for mismatch on keys/values ' + key + '/' + value)
                 return null
             }
-            return putElementsIfAbsent(key, value)
+            return putElementsIfAbsent((Collection) key, (Collection) value)
         } else if (key instanceof Collection && !(value instanceof Collection)) {
             throw new IllegalArgumentException('keys are collection but not values')
         } else if (key instanceof Object[] && value instanceof Object[]) {
