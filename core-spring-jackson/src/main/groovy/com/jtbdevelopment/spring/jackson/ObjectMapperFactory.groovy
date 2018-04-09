@@ -2,7 +2,7 @@ package com.jtbdevelopment.spring.jackson
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
-import com.fasterxml.jackson.datatype.jsr310.JSR310Module
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.FactoryBean
 import org.springframework.beans.factory.FactoryBeanNotInitializedException
@@ -44,7 +44,7 @@ class ObjectMapperFactory implements FactoryBean<ObjectMapper> {
         customizations && customizations.each {
             it.customizeModule(module)
         }
-        objectMapper.registerModule(new JSR310Module())
+        objectMapper.registerModule(new JavaTimeModule())
         objectMapper.registerModule(module)
     }
 
