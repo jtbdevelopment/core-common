@@ -10,18 +10,18 @@ import org.springframework.cache.Cache
  * Time: 7:09 PM
  */
 class HazelcastCacheManagerTest extends GroovyTestCase {
-    HazelcastCacheManager manager = new HazelcastCacheManager()
+    HazelcastCacheManager manager
 
-    public void testGetsNewMap() {
+    void testGetsNewMap() {
         String name = 'named'
         IMap map = [] as IMap
-        manager.hazelCastInstance = [
+        manager = new HazelcastCacheManager([
                 getMap: {
                     String n ->
                         assert name == n
                         return map
                 }
-        ] as HazelcastInstance
+        ] as HazelcastInstance)
 
         Cache c = manager.getCache(name)
         assert c
@@ -29,16 +29,17 @@ class HazelcastCacheManagerTest extends GroovyTestCase {
         assert c.nativeCache.is(map)
     }
 
-    public void testGetsNewLHCMap() {
+    void testGetsNewLHCMap() {
         String name = 'named-LHC'
         IMap map = [] as IMap
-        manager.hazelCastInstance = [
+        manager = new HazelcastCacheManager([
                 getMap: {
                     String n ->
                         assert name == n
                         return map
                 }
-        ] as HazelcastInstance
+        ] as HazelcastInstance)
+
 
         Cache c = manager.getCache(name)
         assert c
@@ -46,16 +47,16 @@ class HazelcastCacheManagerTest extends GroovyTestCase {
         assert c.getNativeCache().is(map)
     }
 
-    public void testRepeatMapGets() {
+    void testRepeatMapGets() {
         String name = 'named'
         IMap map = [] as IMap
-        manager.hazelCastInstance = [
+        manager = new HazelcastCacheManager([
                 getMap: {
                     String n ->
                         assert name == n
                         return map
                 }
-        ] as HazelcastInstance
+        ] as HazelcastInstance)
 
         Cache c = manager.getCache(name)
         assert c
@@ -68,13 +69,13 @@ class HazelcastCacheManagerTest extends GroovyTestCase {
 
     void testGetMapNames() {
         def names = ['name1', 'name2', 'name3-LHC'] as Set
-        manager.hazelCastInstance = [
+        manager = new HazelcastCacheManager([
                 getMap: {
                     String n ->
                         assert names.contains(n)
                         return [] as IMap
                 }
-        ] as HazelcastInstance
+        ] as HazelcastInstance)
         names.each { manager.getCache(it) }
 
         assert manager.cacheNames as Set == names

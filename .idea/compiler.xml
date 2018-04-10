@@ -27,15 +27,15 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="core-common" target="1.5" />
-      <module name="core-spring" target="1.5" />
-      <module name="core-spring-hazelcast" target="1.5" />
-      <module name="core-spring-jackson" target="1.5" />
-      <module name="core-spring-mongo" target="1.5" />
-      <module name="core-spring-quartz" target="1.5" />
+      <module name="core-common" target="1.8" />
+      <module name="core-spring" target="1.8" />
+      <module name="core-spring-hazelcast" target="1.8" />
+      <module name="core-spring-jackson" target="1.8" />
+      <module name="core-spring-mongo" target="1.8" />
+      <module name="core-spring-quartz" target="1.8" />
       <module name="core-spring-web" target="1.8" />
-      <module name="core-spring-web-hazelcast" target="1.5" />
-      <module name="core-spring-web-mongo" target="1.5" />
+      <module name="core-spring-web-hazelcast" target="1.8" />
+      <module name="core-spring-web-mongo" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

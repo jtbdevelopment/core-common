@@ -11,9 +11,9 @@ import java.lang.reflect.Field
  * Time: 7:00 PM
  */
 class AutowiredSchedulerFactoryBeanTest extends GroovyTestCase {
-    AutowiredSchedulerFactoryBean schedulerFactoryBean = new AutowiredSchedulerFactoryBean()
+    AutowiredSchedulerFactoryBean schedulerFactoryBean
 
-    void testSetup() {
+    void testConstructor() {
         def t1 = new CronTriggerImpl()
         def t2 = new CronTriggerImpl()
         def tf1 = [
@@ -22,8 +22,7 @@ class AutowiredSchedulerFactoryBeanTest extends GroovyTestCase {
         def tf2 = [
                 getObject: { t2 }
         ] as CronTriggerFactoryBean
-        schedulerFactoryBean.cronTriggerFactoryBeans = [tf1, tf2]
-        schedulerFactoryBean.setup()
+        schedulerFactoryBean = new AutowiredSchedulerFactoryBean([tf1, tf2])
         Field field = SchedulerAccessor.getDeclaredField('triggers')
         field.accessible = true
         assert field.get(schedulerFactoryBean) == [t1, t2]
