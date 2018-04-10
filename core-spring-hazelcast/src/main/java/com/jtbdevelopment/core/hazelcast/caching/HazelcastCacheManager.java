@@ -3,13 +3,12 @@ package com.jtbdevelopment.core.hazelcast.caching;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.jtbdevelopment.core.spring.caching.ListHandlingCache;
+import java.util.Collection;
+import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
-
-import java.util.Collection;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Date: 2/25/15

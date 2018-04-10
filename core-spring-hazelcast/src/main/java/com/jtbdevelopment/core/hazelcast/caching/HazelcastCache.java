@@ -1,11 +1,10 @@
 package com.jtbdevelopment.core.hazelcast.caching;
 
 import com.hazelcast.core.IMap;
+import java.util.concurrent.Callable;
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 import org.springframework.cache.Cache;
 import org.springframework.cache.support.SimpleValueWrapper;
-
-import java.util.concurrent.Callable;
 
 /**
  * Date: 2/25/15
