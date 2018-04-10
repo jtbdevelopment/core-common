@@ -6,12 +6,16 @@ import com.amazonaws.services.ec2.model.Instance
 import com.amazonaws.services.ec2.model.Tag
 import com.amazonaws.util.EC2MetadataUtils
 
+import static org.mockito.Mockito.mock
+import static org.mockito.Mockito.when
+
 /**
  * Date: 3/14/15
  * Time: 4:59 PM
  */
 class AWSClusterSettingsTest extends GroovyTestCase {
-    AWSClusterSettings settings = new AWSClusterSettings()
+    AWSUtils awsUtils = mock(AWSUtils.class)
+    AWSClusterSettings settings = new AWSClusterSettings(awsUtils)
 
     void testSetupNoKey() {
         settings.setup()
@@ -27,11 +31,7 @@ class AWSClusterSettingsTest extends GroovyTestCase {
     void testSetupNoRegion() {
         settings.awsAccessKey = 'X'
         settings.awsSecretKey = 'Y'
-        settings.awsUtils = [
-                getCurrentRegion: {
-                    null
-                }
-        ] as AWSUtils
+        when(awsUtils.currentRegion).thenReturn(null)
         settings.setup()
         assertFalse settings.validAWSCluster
     }
@@ -39,14 +39,8 @@ class AWSClusterSettingsTest extends GroovyTestCase {
     void testSetupNoInstanceInfo() {
         settings.awsAccessKey = 'X'
         settings.awsSecretKey = 'Y'
-        settings.awsUtils = [
-                getCurrentRegion      : {
-                    RegionUtils.getRegion(Regions.CN_NORTH_1.name)
-                },
-                getCurrentInstanceInfo: {
-                    null
-                }
-        ] as AWSUtils
+        when(awsUtils.currentRegion).thenReturn(RegionUtils.getRegion(Regions.CN_NORTH_1.name))
+        when(awsUtils.currentInstanceInfo).thenReturn(null)
         settings.setup()
         assertFalse settings.validAWSCluster
     }
@@ -54,17 +48,9 @@ class AWSClusterSettingsTest extends GroovyTestCase {
     void testSetupNoInstance() {
         settings.awsAccessKey = 'X'
         settings.awsSecretKey = 'Y'
-        settings.awsUtils = [
-                getCurrentRegion      : {
-                    RegionUtils.getRegion(Regions.CN_NORTH_1.name)
-                },
-                getCurrentInstanceInfo: {
-                    new EC2MetadataUtils.InstanceInfo(null, null, null, 'II', null, null, null, null, null, null, null, null, null, null)
-                },
-                getCurrentInstance    : {
-                    null
-                }
-        ] as AWSUtils
+        when(awsUtils.currentRegion).thenReturn(RegionUtils.getRegion(Regions.CN_NORTH_1.name))
+        when(awsUtils.currentInstanceInfo).thenReturn(new EC2MetadataUtils.InstanceInfo(null, null, null, 'II', null, null, null, null, null, null, null, null, null, null))
+        when(awsUtils.getCurrentInstance(settings)).thenReturn(null)
         settings.setup()
         assertFalse settings.validAWSCluster
     }
@@ -76,21 +62,11 @@ class AWSClusterSettingsTest extends GroovyTestCase {
                 'first',
                 'second'
         ]
-        settings.awsUtils = [
-                getCurrentRegion      : {
-                    RegionUtils.getRegion(Regions.CN_NORTH_1.name)
-                },
-                getCurrentInstanceInfo: {
-                    new EC2MetadataUtils.InstanceInfo(null, null, null, 'II', null, null, null, null, null, null, null, null, null, null)
-                },
-                getCurrentInstance    : {
-                    [
-                            getTags: {
-                                Arrays.asList(new Tag('second', '2'), new Tag('first', '1'))
-                            }
-                    ] as Instance
-                }
-        ] as AWSUtils
+        when(awsUtils.currentRegion).thenReturn(RegionUtils.getRegion(Regions.CN_NORTH_1.name))
+        when(awsUtils.currentInstanceInfo).thenReturn(new EC2MetadataUtils.InstanceInfo(null, null, null, 'II', null, null, null, null, null, null, null, null, null, null))
+        Instance instance = mock(Instance.class)
+        when(awsUtils.getCurrentInstance(settings)).thenReturn(instance)
+        when(instance.tags).thenReturn(Arrays.asList(new Tag('second', '2'), new Tag('first', '1')))
         settings.setup()
         assert settings.validAWSCluster
         assert settings.clusterKey == 'first'
@@ -104,21 +80,11 @@ class AWSClusterSettingsTest extends GroovyTestCase {
                 'first',
                 'second'
         ]
-        settings.awsUtils = [
-                getCurrentRegion      : {
-                    RegionUtils.getRegion(Regions.CN_NORTH_1.name)
-                },
-                getCurrentInstanceInfo: {
-                    new EC2MetadataUtils.InstanceInfo(null, null, null, 'II', null, null, null, null, null, null, null, null, null, null)
-                },
-                getCurrentInstance    : {
-                    [
-                            getTags: {
-                                Arrays.asList(new Tag('second', '2'), new Tag('third', '3'))
-                            }
-                    ] as Instance
-                }
-        ] as AWSUtils
+        when(awsUtils.currentRegion).thenReturn(RegionUtils.getRegion(Regions.CN_NORTH_1.name))
+        when(awsUtils.currentInstanceInfo).thenReturn(new EC2MetadataUtils.InstanceInfo(null, null, null, 'II', null, null, null, null, null, null, null, null, null, null))
+        Instance instance = mock(Instance.class)
+        when(awsUtils.getCurrentInstance(settings)).thenReturn(instance)
+        when(instance.tags).thenReturn(Arrays.asList(new Tag('second', '2'), new Tag('third', '3')))
         settings.setup()
         assert settings.validAWSCluster
         assert settings.clusterKey == 'second'
@@ -132,21 +98,11 @@ class AWSClusterSettingsTest extends GroovyTestCase {
                 'first',
                 'second'
         ]
-        settings.awsUtils = [
-                getCurrentRegion      : {
-                    RegionUtils.getRegion(Regions.CN_NORTH_1.name)
-                },
-                getCurrentInstanceInfo: {
-                    new EC2MetadataUtils.InstanceInfo(null, null, null, 'II', null, null, null, null, null, null, null, null, null, null)
-                },
-                getCurrentInstance    : {
-                    [
-                            getTags: {
-                                Arrays.asList(new Tag('fourth', '4'), new Tag('third', '3'))
-                            }
-                    ] as Instance
-                }
-        ] as AWSUtils
+        when(awsUtils.currentRegion).thenReturn(RegionUtils.getRegion(Regions.CN_NORTH_1.name))
+        when(awsUtils.currentInstanceInfo).thenReturn(new EC2MetadataUtils.InstanceInfo(null, null, null, 'II', null, null, null, null, null, null, null, null, null, null))
+        Instance instance = mock(Instance.class)
+        when(awsUtils.getCurrentInstance(settings)).thenReturn(instance)
+        when(instance.tags).thenReturn(Arrays.asList(new Tag('fourth', '4'), new Tag('third', '3')))
         settings.setup()
         assertFalse settings.validAWSCluster
     }
