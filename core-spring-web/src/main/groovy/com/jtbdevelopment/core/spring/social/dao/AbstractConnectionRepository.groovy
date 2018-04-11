@@ -1,6 +1,5 @@
 package com.jtbdevelopment.core.spring.social.dao
 
-import groovy.transform.CompileStatic
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.dao.DuplicateKeyException
@@ -14,7 +13,6 @@ import org.springframework.util.MultiValueMap
  * Date: 12/16/14
  * Time: 1:17 PM
  */
-@CompileStatic
 abstract class AbstractConnectionRepository implements ConnectionRepository {
     private static Logger logger = LoggerFactory.getLogger(AbstractConnectionRepository.class)
     static AbstractSocialConnectionRepository socialConnectionRepository
@@ -38,7 +36,7 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
 
     @Override
     MultiValueMap<String, Connection<?>> findAllConnections() {
-        Iterable<SocialConnection> socialConnections = socialConnectionRepository.findByUserId(userId, SORT_PID_CREATED)
+        List<SocialConnection> socialConnections = socialConnectionRepository.findByUserId(userId, SORT_PID_CREATED)
         MultiValueMap<String, Connection<?>> connections = new LinkedMultiValueMap<String, Connection<?>>()
         providerConnectionFactoryMap.keySet().each {
             String key ->
@@ -61,7 +59,7 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
     }
 
     @Override
-    def <A> List<Connection<A>> findConnections(final Class<A> apiType) {
+    <A> List<Connection<A>> findConnections(final Class<A> apiType) {
         List<?> connections = findConnections(getProviderId(apiType))
         return (List<Connection<A>>) connections
     }
@@ -101,7 +99,7 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
     }
 
     @Override
-    def <A> Connection<A> getConnection(final Class<A> apiType, final String providerUserId) {
+    <A> Connection<A> getConnection(final Class<A> apiType, final String providerUserId) {
         String providerId = getProviderId(apiType)
         return (Connection<A>) getConnection(new ConnectionKey(providerId, providerUserId))
     }
@@ -167,7 +165,8 @@ abstract class AbstractConnectionRepository implements ConnectionRepository {
         return connectionFactoryLocator.getConnectionFactory(apiType).getProviderId()
     }
 
-    protected static Connection<?> mapSocialConnectionToConnection(final SocialConnection socialConnection) {
+    protected static Connection<?> mapSocialConnectionToConnection(
+            final SocialConnection socialConnection) {
         ConnectionData connectionData = new ConnectionData(
                 socialConnection.providerId,
                 socialConnection.providerUserId,

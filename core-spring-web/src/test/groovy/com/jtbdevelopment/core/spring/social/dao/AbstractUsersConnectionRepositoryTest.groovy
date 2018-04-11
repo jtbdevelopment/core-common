@@ -19,13 +19,12 @@ import static com.jtbdevelopment.core.spring.social.dao.utility.FakeFacebookApi.
  */
 class AbstractUsersConnectionRepositoryTest extends ConnectionTestCase {
 
-    private StringUsersConnectionRepository repository = new StringUsersConnectionRepository()
+    private StringUsersConnectionRepository repository
 
     @Override
     protected void setUp() throws Exception {
         super.setUp()
-        repository.connectionFactoryLocator = connectionFactoryLocator
-        repository.textEncryptor = textEncryptor
+        repository = new StringUsersConnectionRepository(null, null, connectionFactoryLocator, textEncryptor)
     }
 
     void testSetupInitializesConnectionRepositoryStatics() {
@@ -34,25 +33,24 @@ class AbstractUsersConnectionRepositoryTest extends ConnectionTestCase {
         StringConnectionRepository.socialConnectionRepository = null
         StringConnectionRepository.providerConnectionFactoryMap = [:]
 
-        repository.connectionSignUp = [] as ConnectionSignUp
-        repository.socialConnectionRepository = [] as AbstractSocialConnectionRepository
+        def socialConnectionRepository = [] as AbstractSocialConnectionRepository
+        repository = new StringUsersConnectionRepository([] as ConnectionSignUp, socialConnectionRepository, connectionFactoryLocator, textEncryptor)
 
-        repository.setUp()
 
         assert StringConnectionRepository.providerConnectionFactoryMap == providers
-        assert repository.connectionFactoryLocator.is(StringConnectionRepository.connectionFactoryLocator)
-        assert repository.socialConnectionRepository.is(StringConnectionRepository.socialConnectionRepository)
-        assert repository.textEncryptor.is(StringConnectionRepository.encryptor)
+        assert connectionFactoryLocator.is(StringConnectionRepository.connectionFactoryLocator)
+        assert socialConnectionRepository.is(StringConnectionRepository.socialConnectionRepository)
+        assert textEncryptor.is(StringConnectionRepository.encryptor)
     }
 
-    public void testFindValidUserIdWithValidConnectionFactory() {
+    void testFindValidUserIdWithValidConnectionFactory() {
         def providedUserId = '1234'
         Connection connection = [
                 getKey: {
                     return new ConnectionKey(FACEBOOK, providedUserId)
                 }
         ] as Connection
-        repository.socialConnectionRepository = [
+        def socialConnectionRepository = [
                 findByProviderIdAndProviderUserId: {
                     String provider, String user ->
                         assert provider == FACEBOOK
@@ -63,28 +61,11 @@ class AbstractUsersConnectionRepositoryTest extends ConnectionTestCase {
                         ]
                 }
         ] as AbstractSocialConnectionRepository
+        repository = new StringUsersConnectionRepository(null, socialConnectionRepository, connectionFactoryLocator, textEncryptor)
         assert ['1', '2'] as Set == repository.findUserIdsWithConnection(connection) as Set
     }
 
-    public void testFindInValidUserIdWithNoSignUp() {
-        def providedUserId = '1234'
-        Connection connection = [
-                getKey: {
-                    return new ConnectionKey(FACEBOOK, providedUserId)
-                }
-        ] as Connection
-        repository.socialConnectionRepository = [
-                findByProviderIdAndProviderUserId: {
-                    String provider, String user ->
-                        assert provider == FACEBOOK
-                        assert user == providedUserId
-                        return []
-                }
-        ] as AbstractSocialConnectionRepository
-        assert [] as Set == repository.findUserIdsWithConnection(connection) as Set
-    }
-
-    public void testFindInValidUserIdWithSuccessfulSignUp() {
+    void testFindInValidUserIdWithSuccessfulSignUp() {
         def providedUserId = '1234'
         def localUserId = '1'
         def connectionData = new ConnectionData(FACEBOOK, providedUserId, 'display', 'profile', 'image', 'at', 's', 'rt', 100L)
@@ -97,8 +78,7 @@ class AbstractUsersConnectionRepositoryTest extends ConnectionTestCase {
                     return connectionData
                 }
         ] as Connection
-        repository.textEncryptor = new ReverseEncryptor()
-        repository.socialConnectionRepository = [
+        def socialConnectionRepository = [
                 findByProviderIdAndProviderUserId: {
                     String provider, String user ->
                         assert provider == FACEBOOK
@@ -122,27 +102,26 @@ class AbstractUsersConnectionRepositoryTest extends ConnectionTestCase {
                         return sc
                 }
         ] as AbstractSocialConnectionRepository
-        StringConnectionRepository.socialConnectionRepository = repository.socialConnectionRepository
-        StringConnectionRepository.encryptor = repository.textEncryptor
-        repository.connectionSignUp = [
+
+        def signUp = [
                 execute: {
                     Connection c ->
                         assert c.is(connection)
                         return localUserId
                 }
         ] as ConnectionSignUp
+        repository = new StringUsersConnectionRepository(signUp, socialConnectionRepository, connectionFactoryLocator, new ReverseEncryptor())
         assert [localUserId] as Set == repository.findUserIdsWithConnection(connection) as Set
     }
 
-    public void testFindInValidUserIdWithFailedSignUp() {
+    void testFindInValidUserIdWithFailedSignUp() {
         def providerUserId = '1234'
         Connection connection = [
                 getKey: {
                     return new ConnectionKey(FACEBOOK, providerUserId)
                 }
         ] as Connection
-        repository.textEncryptor = new ReverseEncryptor()
-        repository.socialConnectionRepository = [
+        def socialConnectionRepository = [
                 findByProviderIdAndProviderUserId: {
                     String provider, String user ->
                         assert provider == FACEBOOK
@@ -150,21 +129,20 @@ class AbstractUsersConnectionRepositoryTest extends ConnectionTestCase {
                         return []
                 }
         ] as AbstractSocialConnectionRepository
-        StringConnectionRepository.socialConnectionRepository = repository.socialConnectionRepository
-        StringConnectionRepository.encryptor = repository.textEncryptor
-        repository.connectionSignUp = [
+        def signUp = [
                 execute: {
                     Connection c ->
                         assert c.is(connection)
                         return null
                 }
         ] as ConnectionSignUp
+        repository = new StringUsersConnectionRepository(signUp, socialConnectionRepository, connectionFactoryLocator, new ReverseEncryptor())
         assert [] as Set == repository.findUserIdsWithConnection(connection) as Set
     }
 
-    public void testFindConnectionsForIds() {
+    void testFindConnectionsForIds() {
         def providerUserIds = ['1234', '5678', '9010'] as Set
-        repository.socialConnectionRepository = [
+        def socialConnectionRepository = [
                 findByProviderIdAndProviderUserIdIn: {
                     String provider, Collection<String> userIds ->
                         assert provider == FACEBOOK
@@ -175,6 +153,7 @@ class AbstractUsersConnectionRepositoryTest extends ConnectionTestCase {
                         ]
                 }
         ] as AbstractSocialConnectionRepository
+        repository = new StringUsersConnectionRepository(null, socialConnectionRepository, connectionFactoryLocator, textEncryptor)
         assert ['1', '2'] as Set == repository.findUserIdsConnectedTo(FACEBOOK, providerUserIds)
     }
 }

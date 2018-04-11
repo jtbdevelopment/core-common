@@ -1,27 +1,31 @@
 package com.jtbdevelopment.core.spring.security.crypto.encrypt
+
+import static org.mockito.Mockito.mock
+import static org.mockito.Mockito.when
+
 /**
  * Date: 12/29/14
  * Time: 11:52 AM
  */
 class StrongBytesEncryptorTest extends GroovyTestCase {
-    StrongBytesEncryptor encryptor = new StrongBytesEncryptor()
+    TextEncryptionProperties properties = mock(TextEncryptionProperties.class)
 
-    public void testEncryptor() {
-        TextEncryptionProperties properties = new TextEncryptionProperties(password: "APASSWORD", salt: "ASALT")
-        encryptor.textEncryptionProperties = properties
-        encryptor.setUp()
+    void testEncryptor() {
+        when(properties.password).thenReturn("APASSWORD")
+        when(properties.salt).thenReturn("ASALT")
 
+        StrongBytesEncryptor encryptor = new StrongBytesEncryptor(properties)
 
         def encrypt = encryptor.encrypt("A TEST".bytes)
         assert new String(encrypt) != 'A TEST'
         assert new String(encryptor.decrypt(encrypt)) == "A TEST"
     }
 
-    public void testAssertsOnTooLongPassword() {
-        TextEncryptionProperties properties = new TextEncryptionProperties(password: "Bar12345Bar12345X", salt: "ASALT")
-        encryptor.textEncryptionProperties = properties
+    void testAssertsOnTooLongPassword() {
+        when(properties.password).thenReturn("Bar12345Bar12345X")
+        when(properties.salt).thenReturn("ASALT")
         shouldFail(IllegalStateException.class) {
-            encryptor.setUp()
+            new StrongBytesEncryptor(properties)
         }
     }
 }

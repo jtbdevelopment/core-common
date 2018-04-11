@@ -4,6 +4,7 @@ import com.jtbdevelopment.core.spring.social.dao.utility.*
 import org.springframework.security.crypto.encrypt.TextEncryptor
 import org.springframework.social.connect.ConnectionFactoryLocator
 import org.springframework.social.connect.ConnectionRepository
+import org.springframework.social.connect.ConnectionSignUp
 
 /**
  * Date: 1/3/2015
@@ -24,7 +25,16 @@ abstract class ConnectionTestCase extends GroovyTestCase {
         }
     }
 
-    protected static class StringUsersConnectionRepository extends AbstractUsersConnectionRepository {
+    protected
+    static class StringUsersConnectionRepository extends AbstractUsersConnectionRepository {
+        StringUsersConnectionRepository(
+                ConnectionSignUp connectionSignUp,
+                AbstractSocialConnectionRepository socialConnectionRepository,
+                ConnectionFactoryLocator connectionFactoryLocator,
+                TextEncryptor textEncryptor) {
+            super(connectionSignUp, socialConnectionRepository, connectionFactoryLocator, textEncryptor)
+        }
+
         @Override
         ConnectionRepository createConnectionRepository(final String userId) {
             return new StringConnectionRepository(userId)
