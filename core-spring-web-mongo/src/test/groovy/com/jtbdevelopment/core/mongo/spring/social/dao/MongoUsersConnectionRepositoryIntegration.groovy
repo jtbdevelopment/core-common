@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.security.crypto.encrypt.TextEncryptor
 import org.springframework.social.connect.*
 import org.springframework.social.connect.support.ConnectionFactoryRegistry
+import org.springframework.test.util.ReflectionTestUtils
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
 
@@ -274,16 +275,16 @@ class MongoUsersConnectionRepositoryIntegration extends AbstractMongoDefaultSpri
                 createConnectionData([(PROVIDERUSERID_COLUMN): '12345', (PROVIDERID_COLUMN): FakeFacebookApi.FACEBOOK])
         )
         try {
-            socialConnectionRepository.connectionSignUp = [
+            ReflectionTestUtils.setField(socialConnectionRepository, "connectionSignUp", [
                     execute: {
                         Connection<?> c ->
                             return 'batman'
-                    }] as ConnectionSignUp
+                    }] as ConnectionSignUp)
             List<String> userIds = socialConnectionRepository.findUserIdsWithConnection(connection)
             assert 1 == userIds.size()
             assert "batman" == userIds.get(0)
         } finally {
-            socialConnectionRepository.connectionSignUp = null
+            ReflectionTestUtils.setField(socialConnectionRepository, "connectionSignUp", null)
         }
     }
 
@@ -293,15 +294,15 @@ class MongoUsersConnectionRepositoryIntegration extends AbstractMongoDefaultSpri
                 createConnectionData([(PROVIDERUSERID_COLUMN): '12345', (PROVIDERID_COLUMN): FakeFacebookApi.FACEBOOK])
         )
         try {
-            socialConnectionRepository.connectionSignUp = [
+            ReflectionTestUtils.setField(socialConnectionRepository, "connectionSignUp", [
                     execute: {
                         Connection<?> c ->
                             return null
-                    }] as ConnectionSignUp
+                    }] as ConnectionSignUp)
             List<String> userIds = socialConnectionRepository.findUserIdsWithConnection(connection)
             assert 0 == userIds.size()
         } finally {
-            socialConnectionRepository.connectionSignUp = null
+            ReflectionTestUtils.setField(socialConnectionRepository, "connectionSignUp", null)
         }
     }
 

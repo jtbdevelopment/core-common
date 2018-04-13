@@ -6,9 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.social.connect.Connection;
-import org.springframework.social.connect.ConnectionFactoryLocator;
 import org.springframework.social.connect.ConnectionKey;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.social.connect.UsersConnectionRepository;
@@ -16,27 +14,18 @@ import org.springframework.social.connect.UsersConnectionRepository;
 /**
  * Date: 12/16/14 Time: 12:59 PM
  */
-public abstract class AbstractUsersConnectionRepository implements UsersConnectionRepository {
+public abstract class AbstractUsersConnectionRepository<ID extends Serializable, SC extends AbstractSocialConnection<ID>> implements
+    UsersConnectionRepository {
 
-  private final AbstractSocialConnectionRepository<? extends Serializable, ? extends SocialConnection> socialConnectionRepository;
+  protected final AbstractSocialConnectionRepository<ID, SC> socialConnectionRepository;
   private final ConnectionSignUp connectionSignUp;
 
   @Autowired
   public AbstractUsersConnectionRepository(
       final ConnectionSignUp connectionSignUp,
-      final AbstractSocialConnectionRepository<? extends Serializable, ? extends SocialConnection> socialConnectionRepository,
-      final ConnectionFactoryLocator connectionFactoryLocator,
-      final TextEncryptor textEncryptor) {
+      final AbstractSocialConnectionRepository<ID, SC> socialConnectionRepository) {
     this.socialConnectionRepository = socialConnectionRepository;
     this.connectionSignUp = connectionSignUp;
-    AbstractConnectionRepository.setConnectionFactoryLocator(connectionFactoryLocator);
-    AbstractConnectionRepository.setEncryptor(textEncryptor);
-    AbstractConnectionRepository.setSocialConnectionRepository(socialConnectionRepository);
-    AbstractConnectionRepository.setProviderConnectionFactoryMap(
-        connectionFactoryLocator.registeredProviderIds()
-            .stream()
-            .collect(Collectors.toMap(x -> x,
-                connectionFactoryLocator::getConnectionFactory)));
   }
 
   @Override
@@ -46,7 +35,7 @@ public abstract class AbstractUsersConnectionRepository implements UsersConnecti
         socialConnectionRepository.findByProviderIdAndProviderUserId(
             key.getProviderId(),
             key.getProviderUserId());
-    if (connections.size() == 0) {
+    if (connections.size() == 0 && connectionSignUp != null) {
       String newUserId = connectionSignUp.execute(connection);
       if (newUserId != null) {
         createConnectionRepository(newUserId).addConnection(connection);

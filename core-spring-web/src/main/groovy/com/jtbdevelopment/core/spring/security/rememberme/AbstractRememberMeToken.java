@@ -13,7 +13,7 @@ public abstract class AbstractRememberMeToken<ID extends Serializable> extends
   public AbstractRememberMeToken(final String username, final String series,
       final String tokenValue, final Date date) {
     super(username, series, tokenValue, date);
-    }
+  }
 
   public abstract ID getId();
 

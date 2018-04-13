@@ -14,30 +14,39 @@ abstract class ConnectionTestCase extends GroovyTestCase {
 
     protected static final String NEWCO = 'newco'
 
-    protected static class StringConnectionRepository extends AbstractConnectionRepository {
-        StringConnectionRepository(final String userId) {
-            super(userId)
+    protected
+    static class StringConnectionRepository extends AbstractConnectionRepository<String, StringSocialConnection> {
+        StringConnectionRepository(
+                AbstractSocialConnectionRepository<String, StringSocialConnection> socialConnectionRepository,
+                ConnectionFactoryLocator connectionFactoryLocator,
+                TextEncryptor encryptor,
+                String userId) {
+            super(socialConnectionRepository, connectionFactoryLocator, encryptor, userId)
         }
 
         @Override
-        SocialConnection createSocialConnection() {
+        StringSocialConnection createSocialConnection() {
             return new StringSocialConnection()
         }
     }
 
     protected
-    static class StringUsersConnectionRepository extends AbstractUsersConnectionRepository {
+    static class StringUsersConnectionRepository extends AbstractUsersConnectionRepository<String, StringSocialConnection> {
+        private ConnectionFactoryLocator connectionFactoryLocator
+        private TextEncryptor textEncryptor
         StringUsersConnectionRepository(
                 ConnectionSignUp connectionSignUp,
                 AbstractSocialConnectionRepository socialConnectionRepository,
-                ConnectionFactoryLocator connectionFactoryLocator,
-                TextEncryptor textEncryptor) {
-            super(connectionSignUp, socialConnectionRepository, connectionFactoryLocator, textEncryptor)
+                TextEncryptor textEncryptor,
+                ConnectionFactoryLocator connectionFactoryLocator) {
+            super(connectionSignUp, socialConnectionRepository)
+            this.connectionFactoryLocator = connectionFactoryLocator
+            this.textEncryptor = textEncryptor
         }
 
         @Override
         ConnectionRepository createConnectionRepository(final String userId) {
-            return new StringConnectionRepository(userId)
+            return new StringConnectionRepository(socialConnectionRepository, connectionFactoryLocator, textEncryptor, userId)
         }
     }
 
@@ -45,8 +54,8 @@ abstract class ConnectionTestCase extends GroovyTestCase {
         String id
     }
 
-    protected Map<String, FakeConnectionFactory> providers;
-    protected ConnectionFactoryLocator connectionFactoryLocator;
+    protected Map<String, FakeConnectionFactory> providers
+    protected ConnectionFactoryLocator connectionFactoryLocator
     protected TextEncryptor textEncryptor = new ReverseEncryptor()
 
     @Override

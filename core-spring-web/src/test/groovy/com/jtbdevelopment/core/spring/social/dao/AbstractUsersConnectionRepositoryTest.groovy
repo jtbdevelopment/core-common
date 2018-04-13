@@ -1,6 +1,5 @@
 package com.jtbdevelopment.core.spring.social.dao
 
-import com.jtbdevelopment.core.spring.social.dao.utility.ReverseEncryptor
 import org.springframework.social.connect.Connection
 import org.springframework.social.connect.ConnectionData
 import org.springframework.social.connect.ConnectionKey
@@ -24,23 +23,7 @@ class AbstractUsersConnectionRepositoryTest extends ConnectionTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp()
-        repository = new StringUsersConnectionRepository(null, null, connectionFactoryLocator, textEncryptor)
-    }
-
-    void testSetupInitializesConnectionRepositoryStatics() {
-        StringConnectionRepository.encryptor = null
-        StringConnectionRepository.connectionFactoryLocator = null
-        StringConnectionRepository.socialConnectionRepository = null
-        StringConnectionRepository.providerConnectionFactoryMap = [:]
-
-        def socialConnectionRepository = [] as AbstractSocialConnectionRepository
-        repository = new StringUsersConnectionRepository([] as ConnectionSignUp, socialConnectionRepository, connectionFactoryLocator, textEncryptor)
-
-
-        assert StringConnectionRepository.providerConnectionFactoryMap == providers
-        assert connectionFactoryLocator.is(StringConnectionRepository.connectionFactoryLocator)
-        assert socialConnectionRepository.is(StringConnectionRepository.socialConnectionRepository)
-        assert textEncryptor.is(StringConnectionRepository.encryptor)
+        repository = new StringUsersConnectionRepository(null, null, textEncryptor, connectionFactoryLocator)
     }
 
     void testFindValidUserIdWithValidConnectionFactory() {
@@ -61,7 +44,7 @@ class AbstractUsersConnectionRepositoryTest extends ConnectionTestCase {
                         ]
                 }
         ] as AbstractSocialConnectionRepository
-        repository = new StringUsersConnectionRepository(null, socialConnectionRepository, connectionFactoryLocator, textEncryptor)
+        repository = new StringUsersConnectionRepository(null, socialConnectionRepository, textEncryptor, connectionFactoryLocator)
         assert ['1', '2'] as Set == repository.findUserIdsWithConnection(connection) as Set
     }
 
@@ -90,7 +73,7 @@ class AbstractUsersConnectionRepositoryTest extends ConnectionTestCase {
                         assertNull sc.id
                         assert sc.userId == localUserId
                         assert sc.providerUserId == connectionData.providerUserId
-                        assert sc.created.compareTo(now) > 0
+                        assert sc.created > now
                         assert sc.displayName == connectionData.displayName
                         assert sc.expireTime == connectionData.expireTime
                         assert sc.imageUrl == connectionData.imageUrl
@@ -110,7 +93,7 @@ class AbstractUsersConnectionRepositoryTest extends ConnectionTestCase {
                         return localUserId
                 }
         ] as ConnectionSignUp
-        repository = new StringUsersConnectionRepository(signUp, socialConnectionRepository, connectionFactoryLocator, new ReverseEncryptor())
+        repository = new StringUsersConnectionRepository(signUp, socialConnectionRepository, textEncryptor, connectionFactoryLocator)
         assert [localUserId] as Set == repository.findUserIdsWithConnection(connection) as Set
     }
 
@@ -136,7 +119,7 @@ class AbstractUsersConnectionRepositoryTest extends ConnectionTestCase {
                         return null
                 }
         ] as ConnectionSignUp
-        repository = new StringUsersConnectionRepository(signUp, socialConnectionRepository, connectionFactoryLocator, new ReverseEncryptor())
+        repository = new StringUsersConnectionRepository(signUp, socialConnectionRepository, textEncryptor, connectionFactoryLocator)
         assert [] as Set == repository.findUserIdsWithConnection(connection) as Set
     }
 
@@ -153,7 +136,7 @@ class AbstractUsersConnectionRepositoryTest extends ConnectionTestCase {
                         ]
                 }
         ] as AbstractSocialConnectionRepository
-        repository = new StringUsersConnectionRepository(null, socialConnectionRepository, connectionFactoryLocator, textEncryptor)
+        repository = new StringUsersConnectionRepository(null, socialConnectionRepository, textEncryptor, connectionFactoryLocator)
         assert ['1', '2'] as Set == repository.findUserIdsConnectedTo(FACEBOOK, providerUserIds)
     }
 }
