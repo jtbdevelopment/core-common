@@ -1,7 +1,7 @@
 package com.jtbdevelopment.core.spring.social.dao;
 
 import java.io.Serializable;
-import java.time.ZonedDateTime;
+import java.time.Instant;
 
 /**
  * Date: 12/30/2014 Time: 5:22 PM
@@ -16,9 +16,9 @@ public interface SocialConnection<ID extends Serializable> {
 
   void setAccessToken(final String accessToken);
 
-  ZonedDateTime getCreated();
+  Instant getCreated();
 
-  void setCreated(final ZonedDateTime created);
+  void setCreated(final Instant created);
 
   String getDisplayName();
 

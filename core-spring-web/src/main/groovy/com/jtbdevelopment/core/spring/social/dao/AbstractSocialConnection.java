@@ -1,8 +1,7 @@
 package com.jtbdevelopment.core.spring.social.dao;
 
 import java.io.Serializable;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.Instant;
 
 /**
  * Date: 12/16/14 Time: 1:04 PM
@@ -10,8 +9,7 @@ import java.time.ZonedDateTime;
 public abstract class AbstractSocialConnection<ID extends Serializable> implements
     SocialConnection<ID> {
 
-  private static final ZoneId GMT = ZoneId.of("GMT");
-  private ZonedDateTime created = ZonedDateTime.now(GMT);
+  private Instant created = Instant.now();
   private String userId;
   private String providerId;
   private String providerUserId;
@@ -23,11 +21,11 @@ public abstract class AbstractSocialConnection<ID extends Serializable> implemen
   private String refreshToken;
   private Long expireTime;
 
-  public ZonedDateTime getCreated() {
+  public Instant getCreated() {
     return created;
   }
 
-  public void setCreated(ZonedDateTime created) {
+  public void setCreated(Instant created) {
     this.created = created;
   }
 

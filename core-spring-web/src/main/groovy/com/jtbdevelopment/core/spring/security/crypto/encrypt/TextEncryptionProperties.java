@@ -1,10 +1,10 @@
 package com.jtbdevelopment.core.spring.security.crypto.encrypt;
 
-import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 /**
  * Date: 12/16/14 Time: 10:49 PM
@@ -13,16 +13,19 @@ import org.springframework.stereotype.Component;
 public class TextEncryptionProperties {
 
   private static final Logger logger = LoggerFactory.getLogger(TextEncryptionProperties.class);
-  @Value("${textEncryption.password:NOTSET}")
-  private String password;
-  @Value("${textEncryption.salt:NOTSET}")
-  private String salt;
-  private boolean warnings = true;
+  private final String password;
+  private final String salt;
+  private final boolean warnings;
 
-  @PostConstruct
-  public void testDefaults() {
-    if (password.equals("NOTSET") || salt.equals("NOTSET")) {
-      warnings = true;
+  //  TODO - test @Value
+  public TextEncryptionProperties(
+      @Value("${textEncryption.password:}") final String password,
+      @Value("${textEncryption.salt:}") final String salt
+  ) {
+    this.password = password;
+    this.salt = salt;
+    this.warnings = StringUtils.isEmpty(password) || StringUtils.isEmpty(salt);
+    if (warnings) {
       logger.warn("-----------------------------------------------------------------------------");
       logger.warn("-----------------------------------------------------------------------------");
       logger.warn("-----------------------------------------------------------------------------");
@@ -32,9 +35,11 @@ public class TextEncryptionProperties {
       logger.warn("-----------------------------------------------------------------------------");
     } else {
       logger.info("text encryption properties correctly initialized with non-default values.");
-      warnings = false;
     }
+  }
 
+  public boolean isWarnings() {
+    return warnings;
   }
 
   String getPassword() {
@@ -45,7 +50,4 @@ public class TextEncryptionProperties {
     return salt;
   }
 
-  public boolean getWarnings() {
-    return warnings;
-  }
 }

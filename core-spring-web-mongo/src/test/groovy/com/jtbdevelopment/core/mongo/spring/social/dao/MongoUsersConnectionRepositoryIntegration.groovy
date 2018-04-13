@@ -2,8 +2,10 @@ package com.jtbdevelopment.core.mongo.spring.social.dao
 
 import com.jtbdevelopment.core.mongo.spring.AbstractCoreMongoConfiguration
 import com.jtbdevelopment.core.mongo.spring.AbstractMongoDefaultSpringContextIntegration
-import com.jtbdevelopment.core.mongo.spring.converters.StringToZonedDateTimeConverter
-import com.jtbdevelopment.core.mongo.spring.converters.ZonedDateTimeToStringConverter
+import com.jtbdevelopment.core.mongo.spring.MongoProperties
+import com.jtbdevelopment.core.mongo.spring.converters.InstantToStringConverter
+import com.jtbdevelopment.core.mongo.spring.converters.MongoConverter
+import com.jtbdevelopment.core.mongo.spring.converters.StringToInstantConverter
 import com.jtbdevelopment.core.spring.social.dao.AbstractUsersConnectionRepository
 import com.jtbdevelopment.core.spring.social.dao.utility.*
 import com.mongodb.BasicDBObject
@@ -23,8 +25,7 @@ import org.springframework.test.util.ReflectionTestUtils
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
 
-import java.time.ZoneId
-import java.time.ZonedDateTime
+import java.time.Instant
 import java.util.function.Consumer
 
 /**
@@ -37,6 +38,12 @@ class MongoUsersConnectionRepositoryIntegration extends AbstractMongoDefaultSpri
     @SuppressWarnings("GroovyUnusedDeclaration")
     @Configuration
     private static class IntegrationSocialConfiguration extends AbstractCoreMongoConfiguration {
+        IntegrationSocialConfiguration(
+                final List<MongoConverter> mongoConverters,
+                final MongoProperties mongoProperties) {
+            super(mongoConverters, mongoProperties)
+        }
+
         @Bean
         @Autowired
         ConnectionFactoryRegistry connectionFactoryLocator() {
@@ -58,14 +65,13 @@ class MongoUsersConnectionRepositoryIntegration extends AbstractMongoDefaultSpri
     private static final String SECRET_COLUMN = 'secret'
     private static final String REFRESH_COLUMN = 'refreshToken'
     private static final String EXPIRE_COLUMN = 'expireTime'
-    private static final ZoneId GMT = ZoneId.of("GMT")
 
     //  Equiv of insertTwitter
     public static final USER1_TWITTER1 = [
             (USERID_COLUMN)        : '1',
             (PROVIDERID_COLUMN)    : FakeTwitterApi.TWITTER,
             (PROVIDERUSERID_COLUMN): '1',
-            (CREATED_COLUMN)       : ZonedDateTime.now(GMT),
+            (CREATED_COLUMN)       : Instant.now(),
             (DISPLAYNAME_COLUMN)   : '@kdonald',
             (PROFILE_COLUMN)       : 'http://twitter.com/kdonald',
             (IMAGE_COLUMN)         : 'http://twitter.com/kdonald/picture',
@@ -79,7 +85,7 @@ class MongoUsersConnectionRepositoryIntegration extends AbstractMongoDefaultSpri
             (USERID_COLUMN)        : '1',
             (PROVIDERID_COLUMN)    : FakeFacebookApi.FACEBOOK,
             (PROVIDERUSERID_COLUMN): '9',
-            (CREATED_COLUMN)       : ZonedDateTime.now(GMT),
+            (CREATED_COLUMN)       : Instant.now(),
             (DISPLAYNAME_COLUMN)   : null,
             (PROFILE_COLUMN)       : null,
             (IMAGE_COLUMN)         : null,
@@ -94,7 +100,7 @@ class MongoUsersConnectionRepositoryIntegration extends AbstractMongoDefaultSpri
             (USERID_COLUMN)        : '1',
             (PROVIDERID_COLUMN)    : FakeFacebookApi.FACEBOOK,
             (PROVIDERUSERID_COLUMN): '10',
-            (CREATED_COLUMN)       : ZonedDateTime.now(GMT),
+            (CREATED_COLUMN)       : Instant.now(),
             (DISPLAYNAME_COLUMN)   : null,
             (PROFILE_COLUMN)       : null,
             (IMAGE_COLUMN)         : null,
@@ -109,7 +115,7 @@ class MongoUsersConnectionRepositoryIntegration extends AbstractMongoDefaultSpri
             (USERID_COLUMN)        : '2',
             (PROVIDERID_COLUMN)    : FakeFacebookApi.FACEBOOK,
             (PROVIDERUSERID_COLUMN): '11',
-            (CREATED_COLUMN)       : ZonedDateTime.now(GMT),
+            (CREATED_COLUMN)       : Instant.now(),
             (DISPLAYNAME_COLUMN)   : null,
             (PROFILE_COLUMN)       : null,
             (IMAGE_COLUMN)         : null,
@@ -124,7 +130,7 @@ class MongoUsersConnectionRepositoryIntegration extends AbstractMongoDefaultSpri
             (USERID_COLUMN)        : '2',
             (PROVIDERID_COLUMN)    : FakeFacebookApi.FACEBOOK,
             (PROVIDERUSERID_COLUMN): '9',
-            (CREATED_COLUMN)       : ZonedDateTime.now(GMT),
+            (CREATED_COLUMN)       : Instant.now(),
             (DISPLAYNAME_COLUMN)   : null,
             (PROFILE_COLUMN)       : null,
             (IMAGE_COLUMN)         : null,
@@ -139,7 +145,7 @@ class MongoUsersConnectionRepositoryIntegration extends AbstractMongoDefaultSpri
             (USERID_COLUMN)        : '1',
             (PROVIDERID_COLUMN)    : 'NEWCONNECTION',   // unregisted
             (PROVIDERUSERID_COLUMN): '1',
-            (CREATED_COLUMN)       : ZonedDateTime.now(GMT),
+            (CREATED_COLUMN)       : Instant.now(),
             (DISPLAYNAME_COLUMN)   : '@kdonald',
             (PROFILE_COLUMN)       : 'http://twitter.com/kdonald',
             (IMAGE_COLUMN)         : 'http://twitter.com/kdonald/picture',
@@ -154,8 +160,8 @@ class MongoUsersConnectionRepositoryIntegration extends AbstractMongoDefaultSpri
     protected TextEncryptor textEncryptor
     protected AbstractUsersConnectionRepository socialConnectionRepository
     protected ConnectionRepository user1SocialConnectionRepository
-    protected ZonedDateTimeToStringConverter zonedDateTimeToStringConverter
-    protected StringToZonedDateTimeConverter stringToZonedDateTimeConverter
+    protected InstantToStringConverter instantToStringConverter
+    protected StringToInstantConverter stringToInstantConverter
 
     MongoCollection collection
 
@@ -190,8 +196,8 @@ class MongoUsersConnectionRepositoryIntegration extends AbstractMongoDefaultSpri
 
         socialConnectionRepository = context.getBean(AbstractUsersConnectionRepository.class)
         user1SocialConnectionRepository = socialConnectionRepository.createConnectionRepository('1')
-        stringToZonedDateTimeConverter = context.getBean(StringToZonedDateTimeConverter.class)
-        zonedDateTimeToStringConverter = context.getBean(ZonedDateTimeToStringConverter.class)
+        stringToInstantConverter = context.getBean(StringToInstantConverter.class)
+        instantToStringConverter = context.getBean(InstantToStringConverter.class)
     }
 
     @Test
@@ -609,7 +615,7 @@ class MongoUsersConnectionRepositoryIntegration extends AbstractMongoDefaultSpri
     protected WriteResult insertSocialConnectionRow(final Map values) {
         Map newValues = [:]
         newValues.putAll(values)
-        newValues[CREATED_COLUMN] = zonedDateTimeToStringConverter.convert(values[CREATED_COLUMN])
+        newValues[CREATED_COLUMN] = instantToStringConverter.convert(values[CREATED_COLUMN])
         newValues[TOKEN_COLUMN] = values[TOKEN_COLUMN] ? textEncryptor.encrypt(values[TOKEN_COLUMN]) : null
         newValues[REFRESH_COLUMN] = values[REFRESH_COLUMN] ? textEncryptor.encrypt(values[REFRESH_COLUMN]) : null
         newValues[SECRET_COLUMN] = values[SECRET_COLUMN] ? textEncryptor.encrypt(values[SECRET_COLUMN]) : null

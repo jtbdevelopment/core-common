@@ -5,8 +5,7 @@ import org.springframework.social.connect.ConnectionData
 import org.springframework.social.connect.ConnectionKey
 import org.springframework.social.connect.ConnectionSignUp
 
-import java.time.ZoneId
-import java.time.ZonedDateTime
+import java.time.Instant
 
 import static com.jtbdevelopment.core.spring.social.dao.utility.FakeFacebookApi.FACEBOOK
 
@@ -52,7 +51,7 @@ class AbstractUsersConnectionRepositoryTest extends ConnectionTestCase {
         def providedUserId = '1234'
         def localUserId = '1'
         def connectionData = new ConnectionData(FACEBOOK, providedUserId, 'display', 'profile', 'image', 'at', 's', 'rt', 100L)
-        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("GMT"))
+        Instant now = Instant.now()
         Connection connection = [
                 getKey    : {
                     return new ConnectionKey(FACEBOOK, providedUserId)

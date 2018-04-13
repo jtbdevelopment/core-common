@@ -8,8 +8,6 @@ import org.springframework.core.convert.support.GenericConversionService
  * Time: 6:51 PM
  */
 class AbstractCoreMongoConfigurationTest extends GroovyTestCase {
-    MongoConfiguration configuration = new MongoConfiguration()
-
     private static class ConvertibleClass {
 
     }
@@ -28,7 +26,7 @@ class AbstractCoreMongoConfigurationTest extends GroovyTestCase {
             }
         }
 
-        configuration.mongoConverters = [cc1, cc2]
+        MongoConfiguration configuration = new MongoConfiguration([cc1, cc2], null)
         def service = new GenericConversionService()
         configuration.customConversions().registerConvertersIn(service)
         assert service.canConvert(String.class, ConvertibleClass.class)
@@ -36,13 +34,14 @@ class AbstractCoreMongoConfigurationTest extends GroovyTestCase {
     }
 
     void testGetMappingBasePackage() {
-        assert configuration.mappingBasePackage == "com.jtbdevelopment"
+        MongoConfiguration configuration = new MongoConfiguration(null, null)
+        assert "com.jtbdevelopment" == configuration.mappingBasePackage
+        assert ["com.jtbdevelopment"] == configuration.mappingBasePackages
     }
 
     void testGetDatabaseName() {
-        MongoProperties p = new MongoProperties()
-        p.dbName = 'X'
-        configuration.mongoProperties = p
+        MongoProperties p = new MongoProperties('X', null, 0, null, null, "JOURNALED")
+        MongoConfiguration configuration = new MongoConfiguration([], p)
 
         assert p.dbName == configuration.databaseName
     }
