@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.util.List;
-import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.FactoryBeanNotInitializedException;
 import org.springframework.stereotype.Component;
@@ -32,7 +31,7 @@ public class ObjectMapperFactory implements FactoryBean<ObjectMapper> {
 
   @Override
   public ObjectMapper getObject() throws Exception {
-    if (DefaultGroovyMethods.asBoolean(objectMapper)) {
+    if (objectMapper != null) {
       return objectMapper;
     }
 

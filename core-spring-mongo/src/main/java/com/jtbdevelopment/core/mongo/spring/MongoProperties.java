@@ -1,7 +1,6 @@
 package com.jtbdevelopment.core.mongo.spring;
 
 import com.mongodb.WriteConcern;
-import groovy.transform.CompileStatic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,7 +11,6 @@ import org.springframework.util.StringUtils;
  * Date: 12/1/14 Time: 10:24 PM
  */
 @Component
-@CompileStatic
 public class MongoProperties {
 
   private static final Logger logger = LoggerFactory.getLogger(MongoProperties.class);

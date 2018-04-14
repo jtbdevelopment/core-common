@@ -1,7 +1,6 @@
 package com.jtbdevelopment.core.mongo.spring.social.dao;
 
 import com.jtbdevelopment.core.spring.social.dao.AbstractUsersConnectionRepository;
-import groovy.transform.CompileStatic;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
@@ -14,7 +13,6 @@ import org.springframework.util.StringUtils;
 /**
  * Date: 12/16/14 Time: 12:59 PM
  */
-@CompileStatic
 @Component
 public class MongoUsersConnectionRepository extends
     AbstractUsersConnectionRepository<ObjectId, MongoSocialConnection> {
