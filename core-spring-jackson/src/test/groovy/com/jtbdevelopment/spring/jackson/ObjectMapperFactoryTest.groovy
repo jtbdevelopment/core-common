@@ -7,9 +7,7 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.module.SimpleModule
-import org.springframework.beans.factory.FactoryBeanNotInitializedException
 
-import javax.annotation.PostConstruct
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
@@ -18,7 +16,7 @@ import java.time.ZonedDateTime
  * Time: 7:51 PM
  */
 class ObjectMapperFactoryTest extends GroovyTestCase {
-    ObjectMapperFactory objectMapperFactory = new ObjectMapperFactory()
+    ObjectMapperFactory objectMapperFactory = new ObjectMapperFactory([], [], [])
 
     void testIsSingleton() {
         assert objectMapperFactory.isSingleton()
@@ -28,21 +26,12 @@ class ObjectMapperFactoryTest extends GroovyTestCase {
         assert ObjectMapper.class.is(objectMapperFactory.objectType)
     }
 
-    void testObjectNotInitializedYet() {
-        shouldFail(FactoryBeanNotInitializedException.class) {
-            objectMapperFactory.object
-        }
-    }
-
     //  Tough to confirm registration other than to do some serialization and deserialization
     void testCreatesObjectMapperCreationAndReuse() {
-        objectMapperFactory = new ObjectMapperFactory()
         def numberDeserializer = new NumberDeserializer()
         def integerSerializer = new IntegerSerializer()
         def bigDecimalSerializer = new BigDecimalSerializer()
-        objectMapperFactory.serializers = [integerSerializer, bigDecimalSerializer]
-        objectMapperFactory.deserializers = [numberDeserializer]
-        objectMapperFactory.initializeMapper()
+        ObjectMapperFactory objectMapperFactory = new ObjectMapperFactory([integerSerializer, bigDecimalSerializer], [numberDeserializer], [])
 
         ObjectMapper mapper = objectMapperFactory.object
         assert mapper
@@ -54,27 +43,17 @@ class ObjectMapperFactoryTest extends GroovyTestCase {
     }
 
     void testJSR310Registration() {
-        objectMapperFactory = new ObjectMapperFactory()
-        objectMapperFactory.initializeMapper()
+        objectMapperFactory = new ObjectMapperFactory([], [], [])
         ObjectMapper mapper = objectMapperFactory.object
         assert mapper
 
-        ZonedDateTimeContainer container = new ZonedDateTimeContainer();
+        ZonedDateTimeContainer container = new ZonedDateTimeContainer()
         assert '{"aDate":1352946820.000000304}' == mapper.writeValueAsString(container)
         assert container.aDate == mapper.readValue('{"aDate":1352946820.000000304}', ZonedDateTimeContainer.class).aDate
     }
 
-    //  Primary test is that null values don't explode
-    void testInitializeWithNullListsOfHelpers() {
-        ObjectMapperFactory objectMapperFactory = new ObjectMapperFactory()
-        objectMapperFactory.initializeMapper()
-        ObjectMapper mapper = objectMapperFactory.getObject()
-        assertNotNull mapper
-    }
-
     void testCustomizationsOfModule() {
-        ObjectMapperFactory objectMapperFactory = new ObjectMapperFactory()
-        objectMapperFactory.customizations = [
+        def customizations = [
                 [
                         customizeModule: {
                             SimpleModule module ->
@@ -82,7 +61,7 @@ class ObjectMapperFactoryTest extends GroovyTestCase {
                         }
                 ] as JacksonModuleCustomization
         ]
-        objectMapperFactory.initializeMapper()
+        objectMapperFactory = new ObjectMapperFactory([], [], customizations)
         ObjectMapper mapper = objectMapperFactory.getObject()
         SomeClassWithInterface c = new SomeClassWithInterface()
         assert '{"anInterface":{"value":"X"}}' == mapper.writeValueAsString(c)
@@ -92,17 +71,13 @@ class ObjectMapperFactoryTest extends GroovyTestCase {
         assert c.anInterface.value == 'Z'
     }
 
-    void testPostConstructAnnotation() {
-        assert ObjectMapperFactory.class.getMethod('initializeMapper').isAnnotationPresent(PostConstruct.class)
-    }
-
     private static interface SomeInterface {}
 
     private static class SomeInterfaceImpl implements SomeInterface {
         String value = 'X'
     }
 
-    public static class SomeClassWithInterface {
+    static class SomeClassWithInterface {
         SomeInterface anInterface = new SomeInterfaceImpl()
     }
 
@@ -144,7 +119,8 @@ class ObjectMapperFactoryTest extends GroovyTestCase {
 
         @Override
         Integer deserialize(
-                final JsonParser jp, final DeserializationContext ctxt) throws IOException, JsonProcessingException {
+                final JsonParser jp,
+                final DeserializationContext ctxt) throws IOException, JsonProcessingException {
             return new Integer(5)
         }
     }

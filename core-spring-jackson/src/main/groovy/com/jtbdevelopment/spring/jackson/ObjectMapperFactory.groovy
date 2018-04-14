@@ -6,10 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.FactoryBean
 import org.springframework.beans.factory.FactoryBeanNotInitializedException
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-
-import javax.annotation.PostConstruct
 
 /**
  * Date: 1/13/15
@@ -18,19 +15,13 @@ import javax.annotation.PostConstruct
 @CompileStatic
 @Component
 class ObjectMapperFactory implements FactoryBean<ObjectMapper> {
-    private ObjectMapper objectMapper
+    private final ObjectMapper objectMapper
 
-    @Autowired(required = false)
-    List<AutoRegistrableJsonSerializer> serializers
-
-    @Autowired(required = false)
-    List<AutoRegistrableJsonDeserializer> deserializers
-
-    @Autowired(required = false)
-    List<JacksonModuleCustomization> customizations
-
-    @PostConstruct
-    void initializeMapper() {
+    ObjectMapperFactory(
+            final List<AutoRegistrableJsonSerializer> serializers,
+            final List<AutoRegistrableJsonDeserializer> deserializers,
+            final List<JacksonModuleCustomization> customizations
+    ) {
         objectMapper = new ObjectMapper()
         SimpleModule module = new SimpleModule('com.jtbdevelopment.spring.jackson.automatic')
         deserializers && deserializers.each {
