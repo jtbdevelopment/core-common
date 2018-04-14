@@ -7,5 +7,4 @@ import com.fasterxml.jackson.databind.JsonDeserializer
  * Time: 7:46 PM
  */
 abstract class AutoRegistrableJsonDeserializer<T> extends JsonDeserializer<T> {
-    abstract Class<T> registerForClass()
 }

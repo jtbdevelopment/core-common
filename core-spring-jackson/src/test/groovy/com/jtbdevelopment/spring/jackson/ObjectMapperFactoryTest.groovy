@@ -83,7 +83,7 @@ class ObjectMapperFactoryTest extends GroovyTestCase {
 
     private class IntegerSerializer extends AutoRegistrableJsonSerializer<Integer> {
         @Override
-        Class<Integer> registerForClass() {
+        Class<Integer> handledType() {
             return Integer.class
         }
 
@@ -98,7 +98,7 @@ class ObjectMapperFactoryTest extends GroovyTestCase {
 
     private class BigDecimalSerializer extends AutoRegistrableJsonSerializer<BigDecimal> {
         @Override
-        Class<BigDecimal> registerForClass() {
+        Class<BigDecimal> handledType() {
             return BigDecimal.class
         }
 
@@ -113,7 +113,7 @@ class ObjectMapperFactoryTest extends GroovyTestCase {
 
     private class NumberDeserializer extends AutoRegistrableJsonDeserializer<Integer> {
         @Override
-        Class<Integer> registerForClass() {
+        Class<Integer> handledType() {
             return Integer.class
         }
 
