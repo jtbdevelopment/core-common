@@ -1,4 +1,4 @@
-package com.jtbdevelopment.spring.jackson;
+package com.jtbdevelopment.core.spring.jackson;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
