@@ -194,11 +194,7 @@
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
             <version>${groovy.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.gpars</groupId>
-            <artifactId>gpars</artifactId>
-            <version>${gpars.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
