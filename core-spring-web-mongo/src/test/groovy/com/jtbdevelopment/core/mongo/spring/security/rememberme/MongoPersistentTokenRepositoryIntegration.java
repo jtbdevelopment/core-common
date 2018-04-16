@@ -7,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 import com.jtbdevelopment.core.mongo.spring.AbstractMongoDefaultSpringContextIntegration;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
-import groovy.lang.Reference;
 import java.util.Date;
 import java.util.function.Consumer;
 import org.bson.Document;
@@ -52,18 +51,18 @@ public class MongoPersistentTokenRepositoryIntegration extends
 
   @Test
   public void testCollectionConfiguration() {
-    final Reference<Boolean> seriesIndexFound = new Reference<>(false);
+    final boolean[] foundSeries = {false};
     collection.listIndexes().forEach((Consumer<Document>) document -> {
       final String name = (String) document.get("name");
       if (SERIES_COLUMN.equals(name)) {
-        seriesIndexFound.set(true);
         assertTrue((boolean) document.get("unique"));
         Document key = (Document) document.get("key");
         assertEquals(1, key.size());
         assertEquals(1, key.get(SERIES_COLUMN));
+        foundSeries[0] = true;
       }
     });
-    assertTrue(seriesIndexFound.get());
+    assertTrue(foundSeries[0]);
   }
 
   @Test

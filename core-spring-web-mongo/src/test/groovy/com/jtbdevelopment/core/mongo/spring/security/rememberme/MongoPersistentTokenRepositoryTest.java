@@ -7,9 +7,9 @@ import com.jtbdevelopment.core.spring.security.rememberme.AbstractPersistentToke
  */
 public class MongoPersistentTokenRepositoryTest extends AbstractPersistentTokenRepositoryTest {
 
-    @Override
-    protected void setUp() throws Exception {
-        this.repository = new MongoPersistentTokenRepository(null);
-    }
+  @Override
+  protected void setUp() throws Exception {
+    this.repository = new MongoPersistentTokenRepository(null);
+  }
 
 }
