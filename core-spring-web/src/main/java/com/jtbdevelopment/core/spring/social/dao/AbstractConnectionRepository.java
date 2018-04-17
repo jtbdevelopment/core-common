@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,8 +55,9 @@ public abstract class AbstractConnectionRepository<ID extends Serializable, SC e
     if (providerConnectionFactoryMap.isEmpty() && connectionFactoryLocator != null) {
       synchronized (providerConnectionFactoryMap) {
         if (providerConnectionFactoryMap.isEmpty()) {
+          Set<String> strings = connectionFactoryLocator.registeredProviderIds();
           providerConnectionFactoryMap.putAll(
-              connectionFactoryLocator.registeredProviderIds()
+              strings
                   .stream()
                   .collect(Collectors.toMap(x -> x,
                       connectionFactoryLocator::getConnectionFactory)));
