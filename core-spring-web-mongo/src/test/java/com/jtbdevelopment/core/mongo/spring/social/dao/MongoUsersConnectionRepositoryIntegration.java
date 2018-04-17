@@ -1,6 +1,7 @@
 package com.jtbdevelopment.core.mongo.spring.social.dao;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -213,20 +214,20 @@ public class MongoUsersConnectionRepositoryIntegration extends
       switch (switchArg) {
         case "sc_uidpidc": {
           foundIndices[0] = true;
-          assert document.get("unique").equals(Boolean.TRUE);
+          assertTrue((boolean) document.get("unique"));
           Document key = (Document) document.get("key");
-          assert key.size() == 3;
+          assertEquals(3, key.size());
           Iterator iterator = key.entrySet().iterator();
           Entry<Object, Object> sub = (Entry<Object, Object>) iterator.next();
-          assert sub.getValue().equals(1);
-          assert sub.getKey().equals("userId");
+          assertEquals(1, sub.getValue());
+          assertEquals("userId", sub.getKey());
           sub = ((Entry<Object, Object>) (iterator.next()));
-          assert sub.getValue().equals(1);
-          assert sub.getKey().equals("providerId");
+          assertEquals(1, sub.getValue());
+          assertEquals("providerId", sub.getKey());
           sub = ((Entry<Object, Object>) (iterator.next()));
-          assert sub.getValue().equals(1);
-          assert sub.getKey().equals("created");
-          assert !iterator.hasNext();
+          assertEquals(1, sub.getValue());
+          assertEquals("created", sub.getKey());
+          assertFalse(iterator.hasNext());
         }
         break;
         case "sc_pk": {
@@ -237,15 +238,15 @@ public class MongoUsersConnectionRepositoryIntegration extends
 
           Iterator iterator = key.entrySet().iterator();
           Entry<Object, Object> sub = (Entry<Object, Object>) iterator.next();
-          assert sub.getValue().equals(1);
-          assert sub.getKey().equals("userId");
+          assertEquals(1, sub.getValue());
+          assertEquals("userId", sub.getKey());
           sub = ((Entry<Object, Object>) (iterator.next()));
-          assert sub.getValue().equals(1);
-          assert sub.getKey().equals("providerId");
+          assertEquals(1, sub.getValue());
+          assertEquals("providerId", sub.getKey());
           sub = ((Entry<Object, Object>) (iterator.next()));
-          assert sub.getValue().equals(1);
-          assert sub.getKey().equals("providerUserId");
-          assert !iterator.hasNext();
+          assertEquals(1, sub.getValue());
+          assertEquals("providerUserId", sub.getKey());
+          assertFalse(iterator.hasNext());
         }
         break;
       }
@@ -389,7 +390,7 @@ public class MongoUsersConnectionRepositoryIntegration extends
 
   @Test
   public void testFindConnectionsByProviderIdEmptyResult() {
-    assert user1SocialConnectionRepository.findConnections(FakeFacebookApi.FACEBOOK).isEmpty();
+    assertTrue(user1SocialConnectionRepository.findConnections(FakeFacebookApi.FACEBOOK).isEmpty());
   }
 
   @Test
@@ -405,7 +406,7 @@ public class MongoUsersConnectionRepositoryIntegration extends
 
   @Test
   public void testFindConnectionsByApiEmptyResult() {
-    assert user1SocialConnectionRepository.findConnections(FakeFacebookApi.class).isEmpty();
+    assertTrue(user1SocialConnectionRepository.findConnections(FakeFacebookApi.class).isEmpty());
   }
 
   @Test
