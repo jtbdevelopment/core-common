@@ -1,6 +1,9 @@
 package com.jtbdevelopment.core.spring.security.crypto.password;
 
-import groovy.util.GroovyTestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Random;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,7 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 /**
  * Date: 12/24/14 Time: 4:53 PM
  */
-public class InjectedBCryptPasswordEncoderTest extends GroovyTestCase {
+public class InjectedBCryptPasswordEncoderTest {
 
   private InjectedBCryptPasswordEncoder encoder = new InjectedBCryptPasswordEncoder();
 

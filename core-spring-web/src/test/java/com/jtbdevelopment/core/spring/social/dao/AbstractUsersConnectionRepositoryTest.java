@@ -17,7 +17,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import org.codehaus.groovy.runtime.StringGroovyMethods;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.social.connect.Connection;
@@ -93,11 +92,11 @@ public class AbstractUsersConnectionRepositoryTest extends ConnectionTestCase {
           assertEquals(connectionData.getImageUrl(), sc.getImageUrl());
           assertEquals(connectionData.getProfileUrl(), sc.getProfileUrl());
           assertEquals(connectionData.getProviderId(), sc.getProviderId());
-          assertEquals(StringGroovyMethods.reverse(connectionData.getAccessToken()),
+          assertEquals(reverse(connectionData.getAccessToken()),
               sc.getAccessToken());
-          assertEquals(StringGroovyMethods.reverse(connectionData.getRefreshToken()),
+          assertEquals(reverse(connectionData.getRefreshToken()),
               sc.getRefreshToken());
-          assertEquals(StringGroovyMethods.reverse(connectionData.getSecret()),
+          assertEquals(reverse(connectionData.getSecret()),
               sc.getSecret());
           return sc;
         });

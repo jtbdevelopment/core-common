@@ -25,6 +25,13 @@ public abstract class ConnectionTestCase {
   ConnectionFactoryLocator connectionFactoryLocator;
   TextEncryptor textEncryptor = new ReverseEncryptor();
 
+  protected static String reverse(final String input) {
+    if (input != null) {
+      return new StringBuilder(input).reverse().toString();
+    }
+    return null;
+  }
+
   public void setUp() throws Exception {
     Map<String, FakeConnectionFactory> map = new HashMap<>();
     map.put(FakeFacebookApi.FACEBOOK, new FakeFacebookConnectionFactory());

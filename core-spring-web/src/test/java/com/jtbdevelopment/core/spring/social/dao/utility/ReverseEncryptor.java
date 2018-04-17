@@ -1,6 +1,5 @@
 package com.jtbdevelopment.core.spring.social.dao.utility;
 
-import org.codehaus.groovy.runtime.StringGroovyMethods;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.util.StringUtils;
 
@@ -15,7 +14,7 @@ public class ReverseEncryptor implements TextEncryptor {
       return encryptedText;
     }
 
-    return StringGroovyMethods.reverse(encryptedText);
+    return new StringBuilder(encryptedText).reverse().toString();
   }
 
   @Override
@@ -24,7 +23,7 @@ public class ReverseEncryptor implements TextEncryptor {
       return text;
     }
 
-    return StringGroovyMethods.reverse(text);
+    return new StringBuilder(text).reverse().toString();
   }
 
 }

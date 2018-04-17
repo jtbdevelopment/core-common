@@ -127,13 +127,6 @@ public class AbstractConnectionRepositoryTest extends ConnectionTestCase {
     assertEquals(socialConnection.getExpireTime(), ((FakeConnection) connection).getExpireTime());
   }
 
-  private static String reverse(final String input) {
-    if (input != null) {
-      return new StringBuilder(input).reverse().toString();
-    }
-    return null;
-  }
-
   @Before
   public void setUp() throws Exception {
     super.setUp();

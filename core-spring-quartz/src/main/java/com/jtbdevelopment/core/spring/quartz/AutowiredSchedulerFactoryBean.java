@@ -1,5 +1,7 @@
 package com.jtbdevelopment.core.spring.quartz;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import org.quartz.CronTrigger;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
@@ -8,16 +10,15 @@ import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 /**
  * Date: 2/15/15
  * Time: 8:01 AM
  */
 @Component
 public class AutowiredSchedulerFactoryBean extends SchedulerFactoryBean {
-    public AutowiredSchedulerFactoryBean(List<CronTriggerFactoryBean> cronTriggerFactoryBeans) {
+
+    public AutowiredSchedulerFactoryBean(
+        final List<CronTriggerFactoryBean> cronTriggerFactoryBeans) {
         List<CronTrigger> triggers = cronTriggerFactoryBeans
                 .stream()
                 .map(CronTriggerFactoryBean::getObject)
