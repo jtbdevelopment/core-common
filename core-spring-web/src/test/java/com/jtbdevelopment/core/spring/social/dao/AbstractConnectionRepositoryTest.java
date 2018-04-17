@@ -5,6 +5,7 @@ import static com.jtbdevelopment.core.spring.social.dao.utility.FakeTwitterApi.T
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -20,11 +21,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
-import org.mockito.Mockito;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionData;
@@ -108,8 +107,8 @@ public class AbstractConnectionRepositoryTest extends ConnectionTestCase {
     setExpireTime(1L);
     setDisplayName("N1DN");
   }};
-  private AbstractSocialConnectionRepository socialConnectionRepository = Mockito
-      .mock(AbstractSocialConnectionRepository.class);
+  private AbstractSocialConnectionRepository socialConnectionRepository =
+      mock(AbstractSocialConnectionRepository.class);
   private StringConnectionRepository repository;
 
   private static void compareConnectionToSocialConnection(final Connection<?> connection,
@@ -149,26 +148,26 @@ public class AbstractConnectionRepositoryTest extends ConnectionTestCase {
 
   @Test
   public void testSetupInitializesConnectionRepositoryStaticsFirstTime() {
-    Assert.assertEquals(providers, ReflectionTestUtils
+    assertEquals(providers, ReflectionTestUtils
         .getField(AbstractConnectionRepository.class, "providerConnectionFactoryMap"));
 
-    connectionFactoryLocator = Mockito.mock(ConnectionFactoryLocator.class);
+    connectionFactoryLocator = mock(ConnectionFactoryLocator.class);
     when(connectionFactoryLocator.registeredProviderIds()).thenReturn(
         new HashSet<>(Collections.singletonList(FACEBOOK)));
-    ConnectionFactory factory = Mockito.mock(ConnectionFactory.class);
+    ConnectionFactory factory = mock(ConnectionFactory.class);
     when(connectionFactoryLocator.getConnectionFactory(FACEBOOK)).thenReturn(factory);
     repository = new StringConnectionRepository(socialConnectionRepository,
         connectionFactoryLocator, textEncryptor, TESTID);
 
-    Assert.assertEquals(providers, ReflectionTestUtils
+    assertEquals(providers, ReflectionTestUtils
         .getField(AbstractConnectionRepository.class, "providerConnectionFactoryMap"));
   }
 
   @Test
   public void testSortDefinitions() {
-    Assert.assertEquals("providerId: ASC,created: ASC",
+    assertEquals("providerId: ASC,created: ASC",
         StringConnectionRepository.SORT_PID_CREATED.toString());
-    Assert.assertEquals("created: ASC", StringConnectionRepository.SORT_CREATED.toString());
+    assertEquals("created: ASC", StringConnectionRepository.SORT_CREATED.toString());
   }
 
   @Test
