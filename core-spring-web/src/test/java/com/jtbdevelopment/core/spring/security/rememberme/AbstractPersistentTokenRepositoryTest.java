@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken;
@@ -24,10 +25,14 @@ import org.springframework.security.web.authentication.rememberme.PersistentReme
  */
 public class AbstractPersistentTokenRepositoryTest {
 
-  private AbstractRememberMeTokenRepository tokenRepository = mock(
+  protected AbstractRememberMeTokenRepository tokenRepository = mock(
       AbstractRememberMeTokenRepository.class);
-  private AbstractPersistentTokenRepository repository = new TestPersistentTokenRepository(
-      tokenRepository);
+  protected AbstractPersistentTokenRepository repository;
+
+  @Before
+  public void setup() {
+    repository = new TestPersistentTokenRepository(tokenRepository);
+  }
 
   @Test
   public void testCreateNewTokenInsertsCorrectData() {
