@@ -34,8 +34,6 @@
         <logback.version>1.2.3</logback.version>
         <slf4j.version>1.7.25</slf4j.version>
         <junit.version>4.12</junit.version>
-        <groovy.version>2.4.15</groovy.version>
-        <gpars.version>1.2.1</gpars.version>
         <flapdoodle.mongo.version>2.0.3</flapdoodle.mongo.version>
         <mockito.version>1.9.5</mockito.version>
     </properties>
@@ -89,7 +87,6 @@
                 <configuration>
                     <includes>
                         <include>**/*Integration.java</include>
-                        <include>**/*Integration.groovy</include>
                     </includes>
                 </configuration>
 
@@ -190,13 +187,6 @@
     </build>
 
     <dependencies>
-        <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all</artifactId>
-            <version>${groovy.version}</version>
-            <scope>test</scope>
-        </dependency>
-
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>

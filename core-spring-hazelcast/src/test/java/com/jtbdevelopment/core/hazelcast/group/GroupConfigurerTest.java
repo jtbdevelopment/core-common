@@ -1,14 +1,13 @@
 package com.jtbdevelopment.core.hazelcast.group;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.config.GroupConfig;
-import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 import org.junit.Test;
 
 /**
@@ -38,7 +37,7 @@ public class GroupConfigurerTest {
     when(groupProperties.getGroupSetting()).thenReturn("Group!");
     configurer.modifyConfiguration(config);
 
-    assertFalse(DefaultGroovyMethods.is(originalConfig, config.getGroupConfig()));
+    assertNotEquals(originalConfig, config.getGroupConfig());
     assertEquals("Group!", config.getGroupConfig().getName());
   }
 }

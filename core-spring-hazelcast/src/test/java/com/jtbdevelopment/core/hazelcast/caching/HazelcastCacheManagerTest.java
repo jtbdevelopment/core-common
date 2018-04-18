@@ -9,11 +9,9 @@ import static org.mockito.Mockito.mock;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.jtbdevelopment.core.spring.caching.ListHandlingCache;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
@@ -42,7 +40,6 @@ public class HazelcastCacheManagerTest {
   @Test
   public void testGetsNewLHCMap() {
     String name = "named-LHC";
-    IMap map = DefaultGroovyMethods.asType(new ArrayList(), IMap.class);
     Mockito.when(instance.getMap(name)).thenReturn(map);
 
     Cache c = manager.getCache(name);
@@ -54,7 +51,6 @@ public class HazelcastCacheManagerTest {
   @Test
   public void testRepeatMapGets() {
     String name = "named";
-    IMap map = DefaultGroovyMethods.asType(new ArrayList(), IMap.class);
     Mockito.when(instance.getMap(name)).thenReturn(map);
 
     Cache c = manager.getCache(name);

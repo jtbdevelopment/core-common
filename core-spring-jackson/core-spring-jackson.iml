@@ -20,7 +20,6 @@
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.9.0" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.9.5" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.5" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.codehaus.groovy:groovy-all:2.4.15" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-core:5.0.5.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-jcl:5.0.5.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-context:5.0.5.RELEASE" level="project" />
