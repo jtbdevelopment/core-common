@@ -1,7 +1,6 @@
 package com.jtbdevelopment.core.hazelcast.caching;
 
 import com.hazelcast.core.IMap;
-import com.sun.istack.internal.NotNull;
 import java.util.concurrent.Callable;
 import org.springframework.cache.Cache;
 import org.springframework.cache.support.SimpleValueWrapper;
@@ -57,7 +56,7 @@ public class HazelcastCache implements Cache {
   }
 
   @Override
-  public <T> T get(@NotNull Object key, @NotNull final Callable<T> valueLoader) {
+  public <T> T get(Object key, final Callable<T> valueLoader) {
     ValueWrapper wrapper = get(key);
     if (wrapper != null) {
       return (T) wrapper.get();
