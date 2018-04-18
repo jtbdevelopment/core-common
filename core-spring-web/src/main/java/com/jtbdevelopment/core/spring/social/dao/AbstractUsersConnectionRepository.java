@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionKey;
 import org.springframework.social.connect.ConnectionSignUp;
@@ -20,7 +19,6 @@ public abstract class AbstractUsersConnectionRepository<ID extends Serializable,
   protected final AbstractSocialConnectionRepository<ID, SC> socialConnectionRepository;
   private final ConnectionSignUp connectionSignUp;
 
-  @Autowired
   public AbstractUsersConnectionRepository(
       final ConnectionSignUp connectionSignUp,
       final AbstractSocialConnectionRepository<ID, SC> socialConnectionRepository) {

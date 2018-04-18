@@ -7,7 +7,6 @@ import com.hazelcast.config.NetworkConfig;
 import com.jtbdevelopment.core.hazelcast.HazelcastConfigurer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -20,7 +19,6 @@ public class AWSHazelcastConfigurer implements HazelcastConfigurer {
   private static final Logger logger = LoggerFactory.getLogger(AWSHazelcastConfigurer.class);
   private final AWSClusterSettings awsClusterSettings;
 
-  @Autowired(required = false)
   public AWSHazelcastConfigurer(final AWSClusterSettings awsClusterSettings) {
     this.awsClusterSettings = awsClusterSettings;
   }

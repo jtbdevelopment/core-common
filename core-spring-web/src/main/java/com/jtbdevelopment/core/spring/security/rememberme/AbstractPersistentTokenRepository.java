@@ -2,7 +2,6 @@ package com.jtbdevelopment.core.spring.security.rememberme;
 
 import java.io.Serializable;
 import java.util.Date;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
@@ -14,7 +13,6 @@ public abstract class AbstractPersistentTokenRepository<ID extends Serializable,
 
   private AbstractRememberMeTokenRepository<ID, T> rememberMeTokenRepository;
 
-  @Autowired
   public AbstractPersistentTokenRepository(
       AbstractRememberMeTokenRepository<ID, T> rememberMeTokenRepository) {
     this.rememberMeTokenRepository = rememberMeTokenRepository;
