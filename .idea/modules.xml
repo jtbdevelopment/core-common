@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/core-common.iml" filepath="$PROJECT_DIR$/core-common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/core-spring/core-spring.iml" filepath="$PROJECT_DIR$/core-spring/core-spring.iml" />
+      <module fileurl="file://$PROJECT_DIR$/core-spring-hazelcast/core-spring-hazelcast.iml" filepath="$PROJECT_DIR$/core-spring-hazelcast/core-spring-hazelcast.iml" />
+      <module fileurl="file://$PROJECT_DIR$/core-spring-jackson/core-spring-jackson.iml" filepath="$PROJECT_DIR$/core-spring-jackson/core-spring-jackson.iml" />
+      <module fileurl="file://$PROJECT_DIR$/core-spring-mongo/core-spring-mongo.iml" filepath="$PROJECT_DIR$/core-spring-mongo/core-spring-mongo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/core-spring-quartz/core-spring-quartz.iml" filepath="$PROJECT_DIR$/core-spring-quartz/core-spring-quartz.iml" />
+      <module fileurl="file://$PROJECT_DIR$/core-spring-web/core-spring-web.iml" filepath="$PROJECT_DIR$/core-spring-web/core-spring-web.iml" />
+      <module fileurl="file://$PROJECT_DIR$/core-spring-web-hazelcast/core-spring-web-hazelcast.iml" filepath="$PROJECT_DIR$/core-spring-web-hazelcast/core-spring-web-hazelcast.iml" />
+      <module fileurl="file://$PROJECT_DIR$/core-spring-web-mongo/core-spring-web-mongo.iml" filepath="$PROJECT_DIR$/core-spring-web-mongo/core-spring-web-mongo.iml" />
+    </modules>
+  </component>
+</project>
