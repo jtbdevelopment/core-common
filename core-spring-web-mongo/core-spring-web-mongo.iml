@@ -4,8 +4,8 @@
     <facet type="Spring" name="Spring">
       <configuration>
         <fileset id="fileset" name="Spring Application Context" removed="false">
-          <file>file://$MODULE_DIR$/../core-spring/src/main/groovy/com/jtbdevelopment/core/spring/CoreSpringConfiguration.groovy</file>
-          <file>file://$MODULE_DIR$/src/main/groovy/com/jtbdevelopment/core/mongo/spring/MongoConfiguration.groovy</file>
+          <file>file://$MODULE_DIR$/../core-spring/src/main/java/com/jtbdevelopment/core/spring/CoreSpringConfiguration.java</file>
+          <file>file://$MODULE_DIR$/../core-spring-mongo/src/main/java/com/jtbdevelopment/core/mongo/spring/MongoConfiguration.java</file>
         </fileset>
       </configuration>
     </facet>

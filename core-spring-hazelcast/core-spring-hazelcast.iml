@@ -7,6 +7,10 @@
           <file>file://$MODULE_DIR$/src/main/groovy/com/jtbdevelopment/core/hazelcast/caching/CacheConfig.groovy</file>
           <file>file://$MODULE_DIR$/src/main/groovy/com/jtbdevelopment/core/hazelcast/caching/CacheConfig.java</file>
         </fileset>
+        <fileset id="fileset2" name="Spring Application Context (2)" removed="false">
+          <file>file://$MODULE_DIR$/../core-spring/src/main/java/com/jtbdevelopment/core/spring/CoreSpringConfiguration.java</file>
+          <file>file://$MODULE_DIR$/src/main/java/com/jtbdevelopment/core/hazelcast/caching/CacheConfig.java</file>
+        </fileset>
       </configuration>
     </facet>
   </component>

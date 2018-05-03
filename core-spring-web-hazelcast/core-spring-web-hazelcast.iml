@@ -4,7 +4,9 @@
     <facet type="Spring" name="Spring">
       <configuration>
         <fileset id="fileset" name="Spring Application Context" removed="false">
-          <file>file://$MODULE_DIR$/src/main/groovy/com/jtbdevelopment/core/hazelcast/sessions/SessionConfig.groovy</file>
+          <file>file://$MODULE_DIR$/../core-spring/src/main/java/com/jtbdevelopment/core/spring/CoreSpringConfiguration.java</file>
+          <file>file://$MODULE_DIR$/../core-spring-hazelcast/src/main/java/com/jtbdevelopment/core/hazelcast/caching/CacheConfig.java</file>
+          <file>file://$MODULE_DIR$/src/main/java/com/jtbdevelopment/core/hazelcast/sessions/SessionConfig.java</file>
         </fileset>
       </configuration>
     </facet>
